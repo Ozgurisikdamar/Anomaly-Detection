@@ -33,8 +33,11 @@ class EvidenceRef(BaseModel):
 
     evidence_id: str
     kind: str = "clip"
-    # Resolved to a short-lived authenticated URL by the API; not a disk path.
     available: bool = False
+    # Resolved to a short-lived authenticated URL by the API at read time; never
+    # a disk path. Stays None at rest; minted per response and expires.
+    url: str | None = None
+    expires_at: datetime | None = None
 
 
 class ReviewOutcome(BaseModel):

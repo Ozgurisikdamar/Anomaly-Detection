@@ -27,6 +27,7 @@ from storeguard_contracts import (
 
 from storeguard_api.db import models
 from storeguard_api.repository import NotFoundError
+from storeguard_api.review import ensure_transition
 from storeguard_api.seed import SeedData
 
 
@@ -149,11 +150,18 @@ class SqlAlchemyRepository:
         return event
 
     def _apply(
-        self, event_id: str, mutate, audit_action: str, reviewer: str, note: str | None
+        self,
+        event_id: str,
+        mutate,
+        audit_action: str,
+        reviewer: str,
+        note: str | None,
+        transition: str,
     ) -> AnomalyEvent:
         with self._session_factory() as s:
             row = self._get_row(s, event_id)
             event = _row_to_event(row)
+            ensure_transition(event.status, transition)
             mutate(event)
             row.status = event.status.value
             row.payload_json = event.model_dump_json()
@@ -173,7 +181,9 @@ class SqlAlchemyRepository:
         def mutate(e: AnomalyEvent) -> None:
             e.status = EventStatus.ACKNOWLEDGED
 
-        return self._apply(event_id, mutate, "acknowledge", reviewer, None)
+        return self._apply(
+            event_id, mutate, "acknowledge", reviewer, None, transition="acknowledge"
+        )
 
     def resolve_event(
         self, event_id: str, reviewer: str, decision: ReviewDecision, note: str | None
@@ -188,7 +198,12 @@ class SqlAlchemyRepository:
             )
 
         return self._apply(
-            event_id, mutate, f"resolve:{decision.value}", reviewer, note
+            event_id,
+            mutate,
+            f"resolve:{decision.value}",
+            reviewer,
+            note,
+            transition="resolve",
         )
 
     def dismiss_event(
@@ -203,7 +218,9 @@ class SqlAlchemyRepository:
                 decided_at=datetime.now(tz=UTC),
             )
 
-        return self._apply(event_id, mutate, "dismiss", reviewer, note)
+        return self._apply(
+            event_id, mutate, "dismiss", reviewer, note, transition="dismiss"
+        )
 
     # --- audit (DB) ------------------------------------------------------
     def append_audit(

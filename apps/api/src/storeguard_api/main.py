@@ -19,8 +19,17 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from storeguard_api import __version__
 from storeguard_api.event_bus import EventBus
+from storeguard_api.evidence import EvidenceStore
 from storeguard_api.logging_config import configure_logging
-from storeguard_api.routers import checkouts, demo, events, health, stores, stream
+from storeguard_api.routers import (
+    checkouts,
+    demo,
+    events,
+    evidence,
+    health,
+    stores,
+    stream,
+)
 from storeguard_api.seed import build_repository, build_seed_data
 from storeguard_api.settings import settings
 
@@ -66,10 +75,14 @@ def create_app() -> FastAPI:
 
     app.state.repository = build_repository_from_settings()
     app.state.event_bus = EventBus()
+    app.state.evidence_store = EvidenceStore(
+        settings.evidence_dir, settings.evidence_secret, settings.evidence_url_ttl_s
+    )
 
     app.include_router(health.router, prefix=API_PREFIX)
     app.include_router(stores.router, prefix=API_PREFIX)
     app.include_router(events.router, prefix=API_PREFIX)
+    app.include_router(evidence.router, prefix=API_PREFIX)
     app.include_router(checkouts.router, prefix=API_PREFIX)
     app.include_router(demo.router, prefix=API_PREFIX)
     app.include_router(stream.router, prefix=API_PREFIX)

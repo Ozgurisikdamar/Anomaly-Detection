@@ -31,5 +31,13 @@ class Settings(BaseSettings):
         "http://127.0.0.1:8081",
     ]
 
+    # Evidence media: where uploaded clips are stored on the API host, the HMAC
+    # secret that signs short-lived evidence URLs, and the URL lifetime (seconds).
+    # evidence_secret is a DEMO default — a real deployment MUST set
+    # STOREGUARD_EVIDENCE_SECRET via the environment.
+    evidence_dir: str = "runs/evidence"
+    evidence_secret: str = "storeguard-demo-evidence-secret-change-me"
+    evidence_url_ttl_s: int = 300
+
 
 settings = Settings()

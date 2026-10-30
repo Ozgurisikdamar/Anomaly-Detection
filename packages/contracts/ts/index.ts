@@ -101,6 +101,9 @@ export interface EvidenceRef {
   evidence_id: string;
   kind: string;
   available: boolean;
+  // Short-lived authenticated URL minted by the API at read time; never a path.
+  url?: string | null;
+  expires_at?: string | null;
 }
 
 export interface ReviewOutcome {

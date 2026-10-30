@@ -21,6 +21,10 @@ from storeguard_contracts import (
     Store,
 )
 
+from storeguard_api.review import InvalidTransitionError, ensure_transition
+
+__all__ = ["InMemoryRepository", "NotFoundError", "InvalidTransitionError"]
+
 
 class NotFoundError(KeyError):
     """Raised when an entity id does not exist."""
@@ -88,6 +92,7 @@ class InMemoryRepository:
 
     def acknowledge_event(self, event_id: str, reviewer: str) -> AnomalyEvent:
         event = self.get_event(event_id)
+        ensure_transition(event.status, "acknowledge")
         event.status = EventStatus.ACKNOWLEDGED
         self.append_audit(reviewer, "acknowledge", event_id, None)
         return self._touch(event)
@@ -96,6 +101,7 @@ class InMemoryRepository:
         self, event_id: str, reviewer: str, decision: ReviewDecision, note: str | None
     ) -> AnomalyEvent:
         event = self.get_event(event_id)
+        ensure_transition(event.status, "resolve")
         event.status = EventStatus.RESOLVED
         event.review = ReviewOutcome(
             decision=decision,
@@ -110,6 +116,7 @@ class InMemoryRepository:
         self, event_id: str, reviewer: str, note: str | None
     ) -> AnomalyEvent:
         event = self.get_event(event_id)
+        ensure_transition(event.status, "dismiss")
         event.status = EventStatus.DISMISSED
         event.review = ReviewOutcome(
             decision=ReviewDecision.FALSE_POSITIVE,

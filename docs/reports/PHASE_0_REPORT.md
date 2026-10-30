@@ -6,7 +6,8 @@
 > Phase 1.
 
 - **Branch:** `feat/storeguard-demo-foundation`
-- **Phase 0 foundation commit:** `__PHASE0_SHA__`
+- **Phase 0 foundation commit:** `0574a193c1cc45ad2251de0b0e90c51eb782f376`
+  (this line was recorded in the immediately following commit)
 - **Date:** 2026-10-30
 - **Toolchain used:** Python 3.13.17 (project targets `>=3.11`), Node v22.22.0,
   Docker 29.x, Chromium/Playwright (screenshots).

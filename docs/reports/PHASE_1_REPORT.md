@@ -6,7 +6,8 @@
 > review before Phase 2.
 
 - **Branch:** `feat/storeguard-demo-foundation`
-- **Phase 1 commit:** `__PHASE1_SHA__`
+- **Phase 1 commit:** `dd2f57741eff655cd2489db18ba917f5ad5c4055`
+  (this line was recorded in the immediately following commit)
 - **Date:** 2026-10-30
 - **Machine:** 4× Intel(R) Xeon(R) @ 2.10GHz, CPU-only.
 - **Stack:** ultralytics 8.4.193, torch 2.15.0+cu132 (run on CPU), OpenCV 5.0.0,

@@ -7,4 +7,5 @@
 -e ./services/zones
 -e ./services/shelf-analytics
 -e ./services/checkout-analytics
+-e ./services/pipeline
 -e ./apps/api[dev]

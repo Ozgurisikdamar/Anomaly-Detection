@@ -7,7 +7,8 @@
 > against a deterministic in-process source. Awaiting review before Phase 3.
 
 - **Branch:** `feat/storeguard-demo-foundation`
-- **Phase 2 commit:** `__PHASE2_SHA__`
+- **Phase 2 commit:** `0db3baac64a14473cd999cdb05adea6b2c496e0f`
+  (this line was recorded in the immediately following commit)
 - **Date:** 2026-10-30
 - **Machine:** 4× Intel(R) Xeon(R) @ 2.10GHz.
 

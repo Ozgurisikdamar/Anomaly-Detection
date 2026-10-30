@@ -93,6 +93,28 @@ Copy `.env.example` to `.env`. Key variables:
 
 ---
 
+## 5a. Hosting the web dashboard on Netlify
+
+Netlify hosts **only the web dashboard** (`apps/web`, Next.js). The FastAPI backend
+and the Python vision pipeline run elsewhere (a VM / Render / Fly / Railway) — Netlify
+cannot run them.
+
+The repo ships a root `netlify.toml` (base `apps/web`, the official
+`@netlify/plugin-nextjs` runtime — the app is SSR, not a static export). To deploy:
+
+1. **Host the API** somewhere public (HTTPS). Set its `STOREGUARD_CORS_ORIGINS_EXTRA`
+   to the Netlify site origin, e.g.
+   `STOREGUARD_CORS_ORIGINS_EXTRA=https://your-site.netlify.app` (comma-separated;
+   merged with the localhost defaults by `settings.allowed_origins`).
+2. In Netlify → **Site settings → Environment variables**, set
+   `NEXT_PUBLIC_API_BASE` to that public API URL. (It is deliberately not committed.)
+3. Connect the repo in Netlify and deploy; the Next plugin builds `apps/web`.
+
+Without steps 1–2 the dashboard still deploys but shows **SIMULATED sample data**
+(offline fallback) — no live events, SSE, or working review, since the browser can't
+reach the API. The Expo mobile app and the vision pipeline are deployed separately
+(not Netlify).
+
 ## 6. Security & privacy posture (required before real deployment)
 
 This demo must not be pointed at real people until the following are in place.

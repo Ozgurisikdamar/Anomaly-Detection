@@ -30,6 +30,17 @@ class Settings(BaseSettings):
         "http://localhost:8081",
         "http://127.0.0.1:8081",
     ]
+    # Extra production origins, comma-separated, via STOREGUARD_CORS_ORIGINS
+    # (e.g. a deployed dashboard: "https://storeguard.netlify.app"). Merged with
+    # the local defaults above by `allowed_origins`.
+    cors_origins_extra: str = ""
+
+    @property
+    def allowed_origins(self) -> list[str]:
+        """Local defaults + any comma-separated production origins from the env."""
+        extra = [o.strip() for o in self.cors_origins_extra.split(",") if o.strip()]
+        # De-dupe while preserving order.
+        return list(dict.fromkeys([*self.cors_origins, *extra]))
 
     # Evidence media: where uploaded clips are stored on the API host, the HMAC
     # secret that signs short-lived evidence URLs, and the URL lifetime (seconds).

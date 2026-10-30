@@ -68,7 +68,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="StoreGuard API", version=__version__, description=DESCRIPTION)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.cors_origins,
+        allow_origins=settings.allowed_origins,
         allow_methods=["*"],
         allow_headers=["*"],
     )

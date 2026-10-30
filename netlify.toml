@@ -1,0 +1,22 @@
+# Netlify deploy config for the StoreGuard web dashboard (apps/web, Next.js).
+#
+# Only the web frontend is hosted on Netlify. The FastAPI backend and the Python
+# vision pipeline run elsewhere (see docs/DEPLOYMENT.md § Netlify). Set
+# NEXT_PUBLIC_API_BASE in the Netlify UI (Site settings → Environment variables)
+# to the PUBLIC URL of the hosted API, and add the Netlify site origin to the
+# API's STOREGUARD_CORS_ORIGINS. Without those the dashboard still deploys but
+# renders SIMULATED sample data only (offline fallback) — no live events/SSE/review.
+
+[build]
+  base = "apps/web"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # NEXT_PUBLIC_API_BASE is intentionally NOT set here — define it per-site in the
+  # Netlify UI so the committed repo carries no deployment-specific backend URL.
+
+# The official Next.js runtime (SSR/serverless). This app is NOT a static export
+# (it uses force-dynamic server components), so the plugin is required.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

@@ -10,12 +10,13 @@
 [build]
   base = "apps/web"
   command = "npm run build"
-  # Point at the Next.js build output, NOT the base dir. Setting publish here
-  # makes netlify.toml win over the UI publish field (which otherwise defaults it
-  # to the base directory and fails: "publish directory cannot be the same as the
-  # base directory"). Path is repo-root-relative. Also clear the publish field in
-  # the Netlify UI (Build & deploy → Build settings) so it no longer overrides.
-  publish = "apps/web/.next"
+  # Next.js build output. When `base` is set, publish in netlify.toml is resolved
+  # RELATIVE TO base, so ".next" → apps/web/.next (not the base dir itself).
+  # IMPORTANT: this only applies once the Publish directory field in the Netlify
+  # UI is cleared — a UI-set publish (publishOrigin: ui) overrides netlify.toml.
+  # If you prefer to set it in the UI instead, use the root-relative value
+  # "apps/web/.next" there.
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "22"

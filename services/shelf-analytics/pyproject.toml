@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storeguard-shelf-analytics"
+version = "0.1.0"
+description = "StoreGuard shelf analytics: occupancy baseline + unresolved-removal state machine with occlusion/offline suppression (Phase 3)."
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+# Evidence montage rendering uses OpenCV; part of the shared `ml` story.
+ml = ["opencv-python>=4.9,<5"]
+
+[project.scripts]
+storeguard-shelf = "storeguard_shelf.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.black]
+line-length = 100

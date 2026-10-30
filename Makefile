@@ -29,12 +29,12 @@ format: ## Apply ruff --fix and black
 	.venv/bin/black packages services apps/api
 
 typecheck: ## mypy (python) + tsc (web, mobile)
-	.venv/bin/mypy apps/api/src services/vision/src services/integrations/src services/capture/src services/zones/src packages/contracts/python/src
+	.venv/bin/mypy apps/api/src services/vision/src services/integrations/src services/capture/src services/zones/src services/shelf-analytics/src packages/contracts/python/src
 	cd apps/web && npm run typecheck
 	cd apps/mobile && npm run typecheck
 
 test: ## Run the Python test suite
-	.venv/bin/pytest apps/api/tests services/integrations/tests services/vision/tests services/capture/tests services/zones/tests
+	.venv/bin/pytest apps/api/tests services/integrations/tests services/vision/tests services/capture/tests services/zones/tests services/shelf-analytics/tests
 
 dev-api: ## Run the API (http://localhost:8000)
 	.venv/bin/uvicorn --app-dir apps/api/src storeguard_api.main:app --reload --port 8000

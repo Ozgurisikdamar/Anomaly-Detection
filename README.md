@@ -3,13 +3,14 @@
 A human-in-the-loop computer vision demo for shelf/aisle monitoring and
 self-checkout transaction anomaly detection.
 
-> **Status: Phase 2 (camera & zones).** Phase 0 baseline + Phase 1 vision
-> workbench (measured YOLO26n vs YOLO11n) + a camera-supervision layer (RTSP-
-> capable, reconnect/health/frame-age, bounded latest-frame buffer) and polygon
-> zones with overlay. The dashboard/API demo data is still **SIMULATED**. See the
-> [Phase 0](docs/reports/PHASE_0_REPORT.md),
-> [Phase 1](docs/reports/PHASE_1_REPORT.md) and
-> [Phase 2](docs/reports/PHASE_2_REPORT.md) reports.
+> **Status: Phase 3 (shelf event MVP).** Phase 0 baseline + Phase 1 vision
+> workbench (measured YOLO26n vs YOLO11n) + Phase 2 camera supervision & zones +
+> a shelf-analytics state machine (unresolved-removal candidate with
+> occlusion/offline suppression, person association, evidence + review;
+> scenarios 1–3 pass replay tests, 0 false alerts). Dashboard/API demo data is
+> still **SIMULATED**. See the
+> [Phase 0](docs/reports/PHASE_0_REPORT.md) · [1](docs/reports/PHASE_1_REPORT.md)
+> · [2](docs/reports/PHASE_2_REPORT.md) · [3](docs/reports/PHASE_3_REPORT.md) reports.
 
 ## Start here
 - [Demo implementation roadmap](docs/STOREGUARD_DEMO_ROADMAP.md) — source of truth
@@ -71,7 +72,7 @@ python -m storeguard_vision.cli track     --model yolo26n --image <img> --out ru
 ```
 
 ## Implementation
-Follow the phase gates in the roadmap. Phases 0 (baseline), 1 (offline vision
-workbench + measured YOLO26n/YOLO11n CPU benchmark) and 2 (camera supervision +
-zones) are complete; awaiting product-owner review before Phase 3. The
+Follow the phase gates in the roadmap. Phases 0 (baseline), 1 (vision workbench +
+measured YOLO26n/YOLO11n CPU benchmark), 2 (camera supervision + zones) and 3
+(shelf event MVP) are complete; awaiting product-owner review before Phase 4. The
 dashboard/API demo data is clearly labelled SIMULATED.

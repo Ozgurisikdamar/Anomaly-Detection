@@ -5,4 +5,5 @@
 -e ./services/vision
 -e ./services/capture
 -e ./services/zones
+-e ./services/shelf-analytics
 -e ./apps/api[dev]

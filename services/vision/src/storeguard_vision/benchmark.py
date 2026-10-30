@@ -12,10 +12,10 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 
-class ModelCandidate(str, Enum):
+class ModelCandidate(StrEnum):
     YOLO26N = "yolo26n"
     YOLO11N = "yolo11n"
     # Export-based CPU candidates — benchmarked in a follow-up (see notes).
@@ -23,7 +23,7 @@ class ModelCandidate(str, Enum):
     OPENVINO_EXPORT = "openvino-export"
 
 
-class Tracker(str, Enum):
+class Tracker(StrEnum):
     BYTETRACK = "bytetrack"  # efficient fixed-camera baseline
     BOTSORT = "botsort"
     TRACKTRACK = "tracktrack"

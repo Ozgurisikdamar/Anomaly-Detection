@@ -3,4 +3,6 @@
 -e ./packages/contracts/python
 -e ./services/integrations
 -e ./services/vision
+-e ./services/capture
+-e ./services/zones
 -e ./apps/api[dev]

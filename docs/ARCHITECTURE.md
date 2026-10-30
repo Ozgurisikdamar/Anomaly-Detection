@@ -28,7 +28,9 @@ RTSP/file/synthetic → Capture → Decode → Sample/ROI → Detector → Track
 | Mobile app | `apps/mobile` | ✅ Expo scaffold (login/inbox/detail/cameras) |
 | Integrations | `services/integrations` | ✅ SIMULATED POS/scanner/scale generators |
 | Vision | `services/vision` | ✅ Phase 1 workbench — capture adapters, YOLO detector/tracker, annotated output, measured YOLO26n vs YOLO11n CPU benchmark (`ml` extra) |
-| Capture / Zones / Shelf / Checkout analytics | (later) | ⏳ Phase 1–4 |
+| Capture (supervision) | `services/capture` | ✅ Phase 2 — RTSP-capable supervised reader, reconnect/health/frame-age, bounded latest-frame buffer |
+| Zones | `services/zones` | ✅ Phase 2 — polygon geometry, point-in-polygon, YAML loader, overlay |
+| Shelf / Checkout analytics | (later) | ⏳ Phase 3–4 |
 | Persistence | `apps/api/src/.../db`, `infra/migrations` | ✅ models + initial Alembic migration (inert) |
 
 ## Data / persistence

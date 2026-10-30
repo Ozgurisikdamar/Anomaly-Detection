@@ -5,9 +5,19 @@
  * SIMULATED sample so the scaffold always renders. `loadEvents` etc. return both
  * the data and a `source` flag the UI surfaces ("live API" vs "sample/offline").
  */
-import type { AnomalyEvent, CheckoutSession } from "@storeguard/contracts";
+import type {
+  AnomalyEvent,
+  Camera,
+  CameraStreamStatus,
+  CheckoutSession,
+} from "@storeguard/contracts";
 
-import { SAMPLE_CAMERAS, SAMPLE_CHECKOUTS, SAMPLE_EVENTS } from "./sample";
+import {
+  SAMPLE_CAMERAS,
+  SAMPLE_CHECKOUTS,
+  SAMPLE_EVENTS,
+  SAMPLE_STATUS,
+} from "./sample";
 
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
@@ -44,6 +54,21 @@ export function loadCheckouts(): Promise<Loaded<CheckoutSession[]>> {
   return tryFetch<CheckoutSession[]>("/api/v1/checkouts", SAMPLE_CHECKOUTS);
 }
 
-export function loadCameras() {
-  return tryFetch("/api/v1/cameras", SAMPLE_CAMERAS);
+export function loadCameras(): Promise<Loaded<Camera[]>> {
+  return tryFetch<Camera[]>("/api/v1/cameras", SAMPLE_CAMERAS);
+}
+
+export function loadCameraStatus(id: string): Promise<Loaded<CameraStreamStatus>> {
+  const fallback =
+    SAMPLE_STATUS[id] ??
+    ({
+      camera_id: id,
+      state: "UNKNOWN",
+      fps: null,
+      frame_age_ms: null,
+      last_frame_at: null,
+      reconnect_count: 0,
+      simulated: true,
+    } as CameraStreamStatus);
+  return tryFetch<CameraStreamStatus>(`/api/v1/cameras/${id}/status`, fallback);
 }

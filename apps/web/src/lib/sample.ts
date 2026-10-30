@@ -8,6 +8,7 @@
 import type {
   AnomalyEvent,
   Camera,
+  CameraStreamStatus,
   CheckoutSession,
 } from "@storeguard/contracts";
 
@@ -169,12 +170,39 @@ export const SAMPLE_EVENTS: AnomalyEvent[] = [
   },
 ];
 
-export const SAMPLE_CAMERAS: (Camera & { state: string; fps: number | null })[] = [
-  { camera_id: "cam_shelf_01", store_id: "store_demo_01", name: "Aisle 3 — Shelf A", kind: "shelf", source_kind: "synthetic", zones: [], state: "ONLINE", fps: 11.8 },
-  { camera_id: "cam_shelf_02", store_id: "store_demo_01", name: "Aisle 5 — Shelf C", kind: "shelf", source_kind: "synthetic", zones: [], state: "DEGRADED", fps: 4.1 },
-  { camera_id: "cam_sco_01", store_id: "store_demo_01", name: "Self-checkout 1", kind: "checkout", source_kind: "synthetic", zones: [], state: "ONLINE", fps: 14.2 },
-  { camera_id: "cam_sco_02", store_id: "store_demo_01", name: "Self-checkout 2", kind: "checkout", source_kind: "synthetic", zones: [], state: "OFFLINE", fps: null },
+export const SAMPLE_CAMERAS: Camera[] = [
+  {
+    camera_id: "cam_shelf_01",
+    store_id: "store_demo_01",
+    name: "Aisle 3 — Shelf A",
+    kind: "shelf",
+    source_kind: "synthetic",
+    zones: [
+      { zone_id: "zone_shelf_01_display", camera_id: "cam_shelf_01", zone_type: "SHELF_DISPLAY", label: "Shelf A — display", polygon: [[0.1, 0.2], [0.55, 0.2], [0.55, 0.7], [0.1, 0.7]] },
+      { zone_id: "zone_shelf_01_pickup", camera_id: "cam_shelf_01", zone_type: "PICKUP_INTERACTION", label: "Shelf A — pickup", polygon: [[0.55, 0.2], [0.9, 0.2], [0.9, 0.8], [0.55, 0.8]] },
+    ],
+  },
+  { camera_id: "cam_shelf_02", store_id: "store_demo_01", name: "Aisle 5 — Shelf C", kind: "shelf", source_kind: "synthetic", zones: [] },
+  {
+    camera_id: "cam_sco_01",
+    store_id: "store_demo_01",
+    name: "Self-checkout 1",
+    kind: "checkout",
+    source_kind: "synthetic",
+    zones: [
+      { zone_id: "zone_sco_01_scan", camera_id: "cam_sco_01", zone_type: "SCAN_AREA", label: "SCO 1 — scan area", polygon: [[0.15, 0.3], [0.45, 0.3], [0.45, 0.65], [0.15, 0.65]] },
+      { zone_id: "zone_sco_01_bag", camera_id: "cam_sco_01", zone_type: "BAGGING_SCALE_AREA", label: "SCO 1 — bagging/scale", polygon: [[0.5, 0.3], [0.85, 0.3], [0.85, 0.75], [0.5, 0.75]] },
+    ],
+  },
+  { camera_id: "cam_sco_02", store_id: "store_demo_01", name: "Self-checkout 2", kind: "checkout", source_kind: "synthetic", zones: [] },
 ];
+
+export const SAMPLE_STATUS: Record<string, CameraStreamStatus> = {
+  cam_shelf_01: { camera_id: "cam_shelf_01", state: "ONLINE", fps: 11.8, frame_age_ms: 90, last_frame_at: "2026-10-30T09:00:00Z", reconnect_count: 0, simulated: true },
+  cam_shelf_02: { camera_id: "cam_shelf_02", state: "DEGRADED", fps: 4.1, frame_age_ms: 820, last_frame_at: "2026-10-30T09:00:00Z", reconnect_count: 3, simulated: true },
+  cam_sco_01: { camera_id: "cam_sco_01", state: "ONLINE", fps: 14.2, frame_age_ms: 70, last_frame_at: "2026-10-30T09:00:00Z", reconnect_count: 0, simulated: true },
+  cam_sco_02: { camera_id: "cam_sco_02", state: "OFFLINE", fps: null, frame_age_ms: null, last_frame_at: null, reconnect_count: 7, simulated: true },
+};
 
 export const SAMPLE_CHECKOUTS: CheckoutSession[] = [
   {

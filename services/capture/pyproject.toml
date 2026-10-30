@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storeguard-capture"
+version = "0.1.0"
+description = "StoreGuard capture layer: supervised camera reader with reconnect, health and a bounded latest-frame buffer (Phase 2)."
+requires-python = ">=3.11"
+# Lightweight core: supervision/health logic is unit-testable without cv2.
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+# RTSP/file capture uses OpenCV; part of the shared `ml` story, installed on demand.
+ml = ["opencv-python>=4.9,<5"]
+
+[project.scripts]
+storeguard-capture = "storeguard_capture.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.black]
+line-length = 100

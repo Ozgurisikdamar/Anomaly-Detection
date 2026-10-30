@@ -72,7 +72,11 @@ python -m storeguard_vision.cli track     --model yolo26n --image <img> --out ru
 ```
 
 ## Implementation
-Follow the phase gates in the roadmap. Phases 0 (baseline), 1 (vision workbench +
-measured YOLO26n/YOLO11n CPU benchmark), 2 (camera supervision + zones), 3 (shelf
-event MVP) and 4 (self-checkout MVP) are complete; awaiting product-owner review
-before Phase 5. The dashboard/API demo data is clearly labelled SIMULATED.
+Follow the phase gates in the roadmap. Phases 0–4 are complete. The post-audit
+work package (`docs/REPO_AUDIT_AND_NEXT_WORK.md`) is underway: **P0** (CI root
+cause + local green baseline — Actions is blocked owner-side on runner/billing,
+see the report) and **P1** (a real FILE DEMO vertical slice: video → YOLO26n +
+ByteTrack → zones → shelf FSM → event → API with PostgreSQL persistence → live
+web inbox + review) are done. See `docs/reports/REPO_AUDIT_AND_PHASE_5_REPORT.md`.
+Awaiting owner review before P2. Shelf events come from a FILE DEMO vision
+pipeline; POS/scale remain SIMULATED and labelled.

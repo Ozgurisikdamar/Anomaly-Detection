@@ -48,12 +48,26 @@ class CheckoutMonitor:
         ts.pending.clear()
         ts.unmatched_scans.clear()
         ts.feed_was_unavailable = False
+        ts.feed_degraded = False
         ts.updated_at = t
 
     def set_scanner_available(self, terminal_id: str, available: bool) -> None:
         ts = self._term(terminal_id)
         ts.scanner_available = available
         if not available:
+            ts.feed_was_unavailable = True
+
+    def set_feed_degraded(self, terminal_id: str, degraded: bool = True) -> None:
+        """Mark the POS/scanner feed as late/degraded.
+
+        A late feed is not a healthy feed: an unmatched item then resolves to
+        TRANSACTION_DATA_MISSING, never ITEM_PLACED_NOT_SCANNED. The correlation
+        layer calls this when a scan's delivery lateness exceeds
+        ``rules.feed_lateness_window_s``.
+        """
+        ts = self._term(terminal_id)
+        ts.feed_degraded = degraded
+        if degraded:
             ts.feed_was_unavailable = True
 
     def observe_scan(self, scan: ScanEvent) -> list[AnomalyEvent]:
@@ -123,8 +137,9 @@ class CheckoutMonitor:
         if txn.kind == "payment_authorized":
             ts.state = CheckoutState.PAYMENT_PENDING
             return []
-        if txn.kind == "void":
-            # Authorized void resolves the matching item — no alert.
+        if txn.kind in ("void", "attendant_override"):
+            # An authorized void or an attendant override resolves the matching
+            # item — a legitimate workflow, never a non-scan alert.
             for item in reversed(ts.pending):
                 if not item.voided:
                     item.voided = True
@@ -149,16 +164,40 @@ class CheckoutMonitor:
             if (t - item.t) < self.rules.scan_match_window_s:
                 continue
             item.alerted = True
-            if ts.scanner_available and ts.camera_ok:
+            if self._feed_healthy(ts):
                 out.append(self._non_scan_event(ts, item))
             else:
-                # Core rule: missing/late POS feed is UNKNOWN, never a non-scan.
-                out.append(self._data_missing_event(ts, item))
+                # Core rule: missing OR late POS feed is UNKNOWN, never a non-scan.
+                out.append(self._data_missing_event(ts))
         return out
+
+    @staticmethod
+    def _feed_healthy(ts: TerminalState) -> bool:
+        """A feed is healthy only if available, camera OK, and on time."""
+        return ts.scanner_available and ts.camera_ok and not ts.feed_degraded
 
     def finalize(self, terminal_id: str, t: float) -> list[AnomalyEvent]:
         events = self.advance(terminal_id, t)
         events += self._reconcile_close(self._term(terminal_id))
+        return events
+
+    def reset_session(self, terminal_id: str, t: float) -> list[AnomalyEvent]:
+        """Terminal reset mid-session (abandon/clear).
+
+        The abandoned session is flushed first so any unresolved items reconcile
+        to UNKNOWN / reconciliation — never a non-scan — then state is cleared so
+        the prior session cannot leak a false alert into the next one.
+        """
+        events = self.finalize(terminal_id, t)
+        ts = self._term(terminal_id)
+        ts.session_id = None
+        ts.state = CheckoutState.IDLE
+        ts.pending.clear()
+        ts.unmatched_scans.clear()
+        ts.feed_was_unavailable = False
+        ts.feed_degraded = False
+        ts.scanner_available = True
+        ts.updated_at = t
         return events
 
     def _reconcile_close(self, ts: TerminalState) -> list[AnomalyEvent]:
@@ -213,13 +252,21 @@ class CheckoutMonitor:
             **self._base_kwargs(ts),
         )
 
-    def _data_missing_event(self, ts: TerminalState, item: PendingItem) -> AnomalyEvent:
+    def _data_missing_event(self, ts: TerminalState) -> AnomalyEvent:
+        # Distinguish an unavailable feed from a late (delayed) one; both are
+        # UNKNOWN and never a non-scan, but the reason aids integration triage.
+        if not ts.scanner_available:
+            reason = "scanner_feed_unavailable"
+        elif ts.feed_degraded:
+            reason = "scanner_feed_delayed"
+        else:  # defensive: only reached on a non-healthy feed
+            reason = "scanner_feed_unavailable"
         return AnomalyEvent(
             event_type=EventType.TRANSACTION_DATA_MISSING,
             severity=Severity.INFO,
             confidence=ConfidenceComponents(pos_synchronization=None),
-            reason_codes=["scanner_feed_unavailable"],
-            missing_data_flags=["scanner_feed_unavailable"],
+            reason_codes=[reason],
+            missing_data_flags=[reason],
             explanation=(
                 "The scanner/POS feed was unavailable or late, so a scan could not be "
                 "confirmed. Per the core rule, this is UNKNOWN — NO non-scan alert is "

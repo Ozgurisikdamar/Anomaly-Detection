@@ -16,6 +16,10 @@ from storeguard_contracts import (
 class CheckoutRules:
     scan_match_window_s: float = 8.0
     scale_tolerance_g: float = 15.0
+    # A POS/scanner message delivered later than this (relative to the item
+    # observation) is treated as a *degraded* feed: the outcome is UNKNOWN /
+    # data-missing, never a non-scan. Configurable per terminal/SKU later.
+    feed_lateness_window_s: float = 5.0
 
 
 @dataclass
@@ -40,6 +44,9 @@ class TerminalState:
     state: CheckoutState = CheckoutState.IDLE
     scanner_available: bool = True
     camera_ok: bool = True
+    # A healthy feed is available AND on time. A late/delayed POS feed sets this
+    # (correlation layer decides lateness) so the FSM cannot raise a non-scan.
+    feed_degraded: bool = False
     pending: list[PendingItem] = field(default_factory=list)
     # Scans seen but not yet matched to a bagging item (sku, t).
     unmatched_scans: list[tuple[str, float]] = field(default_factory=list)

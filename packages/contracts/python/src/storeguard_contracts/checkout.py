@@ -53,7 +53,10 @@ class TransactionEvent(BaseModel):
     terminal_id: str
     session_id: str
     kind: str = Field(
-        description="payment_authorized | payment_declined | completed | void"
+        description=(
+            "payment_authorized | payment_declined | completed | void | "
+            "attendant_override"
+        )
     )
     occurred_at: datetime = Field(default_factory=_utcnow)
     simulated: bool = True

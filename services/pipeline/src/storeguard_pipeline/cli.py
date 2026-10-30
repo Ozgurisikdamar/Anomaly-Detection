@@ -43,7 +43,8 @@ def _upload_evidence(api_base: str, event_id: str, gif_path: Path) -> int:
         [
             f"--{boundary}\r\n".encode(),
             (
-                'Content-Disposition: form-data; name="file"; ' f'filename="{gif_path.name}"\r\n'
+                'Content-Disposition: form-data; name="file"; '
+                f'filename="{gif_path.name}"\r\n'
             ).encode(),
             b"Content-Type: image/gif\r\n\r\n",
             data,
@@ -102,7 +103,7 @@ def cmd_pipeline_demo(args: argparse.Namespace) -> int:
     print(f"[pipeline] metrics: {json.dumps(result.metrics)}")
     print(f"[pipeline] events produced: {len(result.events)}")
     for e in result.events:
-        print(f"    {e.event_type.value:30} sev={e.severity.value:11} reasons={e.reason_codes}")
+        print(f"    {e.event_type.value} [{e.severity.value}] {e.reason_codes}")
 
     if args.api_base:
         for e in result.events:
@@ -123,9 +124,9 @@ def _build_feed(feed_mode: str, terminal_id: str, session_id: str):  # noqa: ANN
         return SimulatedPosFeed(terminal_id, session_id, available=False)
     if feed_mode == "delayed":
         # Lag covers the item's bagging window so the scan can't correlate in time.
-        return SimulatedPosFeed(terminal_id, session_id, degraded_window=(0.3, 5.0)).add_scan(
-            "SKU-DEMO", occurred_at_s=0.8, delivery_delay_s=10.0
-        )
+        return SimulatedPosFeed(
+            terminal_id, session_id, degraded_window=(0.3, 5.0)
+        ).add_scan("SKU-DEMO", occurred_at_s=0.8, delivery_delay_s=10.0)
     # healthy: no scan for the placed item -> headline non-scan review event.
     return SimulatedPosFeed(terminal_id, session_id)
 
@@ -159,12 +160,15 @@ def cmd_checkout_pipeline_demo(args: argparse.Namespace) -> int:
 
     print(f"[checkout] source={result.source_label} camera={result.camera_id}")
     print(f"[checkout] metrics: {json.dumps(result.metrics)}")
-    non_scan = sum(1 for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED")
+    non_scan = sum(
+        1 for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED"
+    )
     print(
-        f"[checkout] events produced: {len(result.events)} " f"(ITEM_PLACED_NOT_SCANNED={non_scan})"
+        f"[checkout] events produced: {len(result.events)} "
+        f"(ITEM_PLACED_NOT_SCANNED={non_scan})"
     )
     for e in result.events:
-        print(f"    {e.event_type.value:34} sev={e.severity.value:11} reasons={e.reason_codes}")
+        print(f"    {e.event_type.value} [{e.severity.value}] {e.reason_codes}")
 
     if args.feed in ("missing", "delayed") and non_scan:
         print("[checkout] SAFETY VIOLATION: non-scan alert on an unhealthy feed!")
@@ -192,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
 
     c = sub.add_parser(
         "checkout-pipeline-demo",
-        help="checkout file clip + SIMULATED POS feed -> correlation -> checkout FSM -> events",
+        help="checkout file clip + SIMULATED POS -> correlation -> FSM -> events",
     )
     c.add_argument("--out", default="runs/checkout")
     c.add_argument("--frames", type=int, default=24)

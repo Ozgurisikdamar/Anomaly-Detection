@@ -17,7 +17,9 @@ _HAS_ML = (
     and importlib.util.find_spec("cv2") is not None
 )
 
-pytestmark = pytest.mark.skipif(not _HAS_ML, reason="ml extra (ultralytics/opencv) not installed")
+pytestmark = pytest.mark.skipif(
+    not _HAS_ML, reason="ml extra (ultralytics/opencv) not installed"
+)
 
 SHELF_POLY = [(0.10, 0.20), (0.55, 0.20), (0.55, 0.70), (0.10, 0.70)]
 PICKUP_POLY = [(0.55, 0.20), (0.90, 0.20), (0.90, 0.80), (0.55, 0.80)]
@@ -38,7 +40,11 @@ def test_file_demo_produces_shelf_event(tmp_path: Path) -> None:
     )
     result = PipelineCoordinator().run_camera(cfg, tmp_path / "out")
 
-    removals = [e for e in result.events if e.event_type.value == "SHELF_ITEM_REMOVED_UNRESOLVED"]
+    removals = [
+        e
+        for e in result.events
+        if e.event_type.value == "SHELF_ITEM_REMOVED_UNRESOLVED"
+    ]
     assert len(removals) == 1
     ev = removals[0]
     assert ev.human_review_required is True

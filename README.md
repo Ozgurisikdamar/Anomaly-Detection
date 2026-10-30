@@ -82,7 +82,13 @@ work package (`docs/REPO_AUDIT_AND_NEXT_WORK.md`) is underway:
   SIMULATED POS feed correlated by terminal/session/UTC through the checkout FSM
   to an event in the web dashboard; a missing **or** delayed POS feed yields
   UNKNOWN, never a non-scan) — see `docs/reports/REPO_AUDIT_P2_REPORT.md`.
+- **P3** (a real bounded, zone-masked evidence clip served via an authenticated
+  short-lived URL and played in **web and mobile**; a mobile API client with
+  real acknowledge/resolve/dismiss, polling realtime and source labels;
+  **server-authoritative** review transitions that are audited and reject
+  invalid/duplicate actions with 409) — see `docs/reports/REPO_AUDIT_P3_REPORT.md`.
 
-Awaiting owner review before P3 (evidence/mobile). Shelf and checkout events come
-from a FILE DEMO vision pipeline; POS/scanner/scale remain SIMULATED and labelled.
-Try it: `make demo` (shelf) or `make demo-checkout` (self-checkout).
+Awaiting owner review before P4 (real RTSP camera validation + OpenVINO
+benchmark). Shelf and checkout events come from a FILE DEMO vision pipeline;
+POS/scanner/scale remain SIMULATED and labelled. Try it: `make demo` (shelf) or
+`make demo-checkout` (self-checkout).

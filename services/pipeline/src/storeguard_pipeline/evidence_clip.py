@@ -86,7 +86,9 @@ def save_evidence_gif(
     h, w = window[0].shape[:2]
     mask = _zone_mask(_FRAME_H, _FRAME_W, zone_polygon)
     pil_frames = [
-        Image.fromarray(cv2.cvtColor(_compose(f, mask, zone_polygon), cv2.COLOR_BGR2RGB))
+        Image.fromarray(
+            cv2.cvtColor(_compose(f, mask, zone_polygon), cv2.COLOR_BGR2RGB)
+        )
         for f in window
     ]
     dst = out / f"{evidence_id}.gif"

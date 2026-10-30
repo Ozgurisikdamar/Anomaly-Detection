@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { ReviewActions } from "@/components/ReviewActions";
-import { loadEvent } from "@/lib/api";
+import { API_BASE, loadEvent } from "@/lib/api";
 import { Panel, SeverityBadge, SourcePill } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
@@ -43,12 +43,41 @@ export default async function EventDetailPage({ params }: { params: { id: string
       <header className="flex flex-wrap items-center gap-3">
         <SeverityBadge severity={event.severity} />
         <h1 className="text-2xl font-bold text-white">{event.event_type}</h1>
+        <span
+          className={`rounded px-2 py-0.5 text-xs ${
+            event.model_version
+              ? "bg-accent/20 text-accent"
+              : "bg-amber-500/15 text-amber-200"
+          }`}
+        >
+          {event.model_version ? "FILE DEMO" : "SIMULATED"}
+        </span>
         {event.simulated ? (
           <span className="rounded bg-amber-500/15 px-2 py-0.5 text-xs text-amber-200">SIMULATED</span>
         ) : null}
       </header>
 
       <p className="max-w-3xl text-sm leading-relaxed text-slate-300">{event.explanation}</p>
+
+      <Panel title="Evidence clip">
+        {event.evidence?.[0]?.available && event.evidence[0].url ? (
+          <div className="space-y-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${API_BASE}${event.evidence[0].url}`}
+              alt="Evidence clip (zone-focused); human review required"
+              className="max-h-80 w-auto rounded-lg border border-edge"
+            />
+            <p className="text-xs text-muted">
+              Served via an authenticated short-lived URL (never a raw path). The area
+              outside the configured zone is dimmed. Human review required — not an
+              accusation.
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted">No evidence clip available for this event.</p>
+        )}
+      </Panel>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Panel title="Event">

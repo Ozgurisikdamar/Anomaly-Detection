@@ -18,9 +18,14 @@ from enum import StrEnum
 class ModelCandidate(StrEnum):
     YOLO26N = "yolo26n"
     YOLO11N = "yolo11n"
-    # Export-based CPU candidates — benchmarked in a follow-up (see notes).
-    ONNX_EXPORT = "onnx-export"
-    OPENVINO_EXPORT = "openvino-export"
+
+
+class Backend(StrEnum):
+    """Inference runtime the model is benchmarked on (P4)."""
+
+    PYTORCH = "pytorch"  # the .pt weights via ultralytics/torch
+    ONNX = "onnx"  # ultralytics ONNX export + onnxruntime
+    OPENVINO = "openvino"  # ultralytics OpenVINO export (Intel CPU)
 
 
 class Tracker(StrEnum):
@@ -29,7 +34,7 @@ class Tracker(StrEnum):
     TRACKTRACK = "tracktrack"
 
 
-# Candidate -> ultralytics weights file (downloaded on first use).
+# Candidate -> base ultralytics weights file (downloaded on first use / on disk).
 _WEIGHTS = {
     ModelCandidate.YOLO26N: "yolo26n.pt",
     ModelCandidate.YOLO11N: "yolo11n.pt",
@@ -41,6 +46,7 @@ class BenchmarkConfig:
     """Inputs for a single benchmark run."""
 
     model: ModelCandidate
+    backend: Backend = Backend.PYTORCH
     tracker: Tracker = Tracker.BYTETRACK
     input_size: int = 640
     clip_path: str | None = None
@@ -48,7 +54,9 @@ class BenchmarkConfig:
     device: str = "cpu"
     frames: int = 60
     warmup: int = 5
+    trials: int = 1
     conf: float = 0.25
+    export_dir: str = "runs/exports"
 
 
 @dataclass
@@ -57,9 +65,11 @@ class BenchmarkResult:
 
     model: ModelCandidate
     tracker: Tracker
+    backend: Backend = Backend.PYTORCH
     device: str = "cpu"
     input_size: int = 640
     frames: int = 0
+    trials: int = 1
     latency_p50_ms: float | None = None
     latency_p95_ms: float | None = None
     latency_mean_ms: float | None = None
@@ -77,7 +87,52 @@ class BenchmarkResult:
         d = self.__dict__.copy()
         d["model"] = self.model.value
         d["tracker"] = self.tracker.value
+        d["backend"] = self.backend.value
         return d
+
+
+def benchmark_env() -> dict:
+    """Capture the machine/runtime so results are interpretable and reproducible.
+
+    Honest provenance: these numbers describe THIS machine, not the owner's
+    target hardware. Versions are read best-effort (None if a package is absent).
+    """
+    import platform
+
+    def _ver(mod: str) -> str | None:
+        import importlib
+
+        try:
+            return getattr(importlib.import_module(mod), "__version__", None)
+        except Exception:  # noqa: BLE001 - absent/optional package
+            return None
+
+    env: dict = {
+        "python": platform.python_version(),
+        "platform": platform.platform(),
+        "processor": platform.processor() or None,
+        "cpu_count": __import__("os").cpu_count(),
+        "torch": _ver("torch"),
+        "opencv": _ver("cv2"),
+        "ultralytics": _ver("ultralytics"),
+        "onnxruntime": _ver("onnxruntime"),
+        "openvino": _ver("openvino"),
+    }
+    try:
+        import torch
+
+        env["torch_num_threads"] = torch.get_num_threads()
+    except Exception:  # noqa: BLE001 - torch optional
+        env["torch_num_threads"] = None
+    try:
+        with open("/proc/cpuinfo") as fh:
+            for line in fh:
+                if line.startswith("model name"):
+                    env["cpu_model"] = line.split(":", 1)[1].strip()
+                    break
+    except OSError:
+        env["cpu_model"] = None
+    return env
 
 
 def _load_frames(config: BenchmarkConfig) -> list:
@@ -104,19 +159,26 @@ def _load_frames(config: BenchmarkConfig) -> list:
     return frames
 
 
-def run_benchmark(config: BenchmarkConfig) -> BenchmarkResult:
-    """Run the benchmark and return measured metrics."""
+def _resolve_weights(config: BenchmarkConfig) -> str:
+    """Return the weights path for the chosen backend (exporting on demand)."""
     if config.model not in _WEIGHTS:
-        raise NotImplementedError(
-            f"Benchmark for {config.model.value!r} (export candidate) is a follow-up; "
-            "Phase 1 measures the .pt candidates (yolo26n, yolo11n)."
-        )
+        raise NotImplementedError(f"unknown model candidate: {config.model.value!r}")
+    base = _WEIGHTS[config.model]
+    if config.backend is Backend.PYTORCH:
+        return base
+    from storeguard_vision.export import export_model
 
+    return str(export_model(base, config.backend, config.input_size, config.export_dir))
+
+
+def run_benchmark(config: BenchmarkConfig) -> BenchmarkResult:
+    """Run the benchmark and return measured metrics (pooled over ``trials``)."""
     from storeguard_vision.detect.detector import YoloDetector
     from storeguard_vision.metrics import LatencyStats, ResourceSampler
 
+    weights = _resolve_weights(config)
     detector = YoloDetector(
-        weights=_WEIGHTS[config.model],
+        weights=weights,
         imgsz=config.input_size,
         device=config.device,
         conf=config.conf,
@@ -129,22 +191,26 @@ def run_benchmark(config: BenchmarkConfig) -> BenchmarkResult:
     for i in range(min(config.warmup, len(frames))):
         detector.infer(frames[i].image)
 
-    latencies: list[float] = []
+    latencies: list[float] = []  # pooled across all trials
     total_dets = 0
+    trials = max(1, config.trials)
     with ResourceSampler() as sampler:
-        for frame in frames:
-            t0 = time.perf_counter()
-            dets = detector.infer(frame.image)
-            latencies.append((time.perf_counter() - t0) * 1000.0)
-            total_dets += len(dets)
+        for _ in range(trials):
+            for frame in frames:
+                t0 = time.perf_counter()
+                dets = detector.infer(frame.image)
+                latencies.append((time.perf_counter() - t0) * 1000.0)
+                total_dets += len(dets)
 
     stats = LatencyStats.from_samples(latencies)
     return BenchmarkResult(
         model=config.model,
         tracker=config.tracker,
+        backend=config.backend,
         device=config.device,
         input_size=config.input_size,
         frames=len(frames),
+        trials=trials,
         latency_p50_ms=round(stats.p50_ms, 2),
         latency_p95_ms=round(stats.p95_ms, 2),
         latency_mean_ms=round(stats.mean_ms, 2),
@@ -155,8 +221,10 @@ def run_benchmark(config: BenchmarkConfig) -> BenchmarkResult:
         ),
         ram_mb=round(sampler.peak_rss_mb, 1) if sampler.peak_rss_mb else None,
         notes=[
-            "CPU single-stream inference latency measured on this machine.",
-            "precision/recall and id_switches require a labelled eval set (not run).",
+            f"CPU single-stream latency on this machine; backend={config.backend.value}; "
+            f"{trials} trial(s) x {len(frames)} frames pooled.",
+            "THROUGHPUT only. precision/recall/id_switches need a labelled eval set "
+            "(not run); no accuracy or model-selection claim.",
             f"source={'file:' + config.clip_path if config.clip_path else 'synthetic'}",
         ],
     )

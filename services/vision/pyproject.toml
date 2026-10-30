@@ -33,4 +33,5 @@ line-length = 100
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.black]
-line-length = 100
+# 88 to match the repo-root black that CI runs (black --check packages services apps/api).
+line-length = 88

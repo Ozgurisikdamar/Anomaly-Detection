@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 
 from storeguard_vision.benchmark import (
+    Backend,
     BenchmarkConfig,
     BenchmarkResult,
     ModelCandidate,
@@ -28,48 +29,92 @@ def _save_json(path: Path, data: object) -> None:
 
 
 def cmd_benchmark(args: argparse.Namespace) -> int:
-    from storeguard_vision.benchmark import run_benchmark
+    from storeguard_vision.benchmark import benchmark_env, run_benchmark
 
     models = [ModelCandidate(m) for m in args.models]
+    backends = [Backend(b) for b in args.backends]
     out = Path(args.out)
     results: list[BenchmarkResult] = []
     for m in models:
-        cfg = BenchmarkConfig(
-            model=m,
-            tracker=Tracker.BYTETRACK,
-            input_size=args.imgsz,
-            clip_path=args.clip,
-            frames=args.frames,
-            device=args.device,
-        )
-        print(
-            f"[benchmark] {m.value} imgsz={args.imgsz} frames={args.frames} ...",
-            flush=True,
-        )
-        res = run_benchmark(cfg)
-        results.append(res)
-        print(
-            f"  -> p50={res.latency_p50_ms}ms p95={res.latency_p95_ms}ms "
-            f"fps={res.fps} cpu={res.cpu_percent}% rss={res.ram_mb}MB dets={res.total_detections}",
-            flush=True,
-        )
+        for backend in backends:
+            cfg = BenchmarkConfig(
+                model=m,
+                backend=backend,
+                tracker=Tracker.BYTETRACK,
+                input_size=args.imgsz,
+                clip_path=args.clip,
+                frames=args.frames,
+                trials=args.trials,
+                device=args.device,
+                export_dir=str(out / "exports"),
+            )
+            print(
+                f"[benchmark] {m.value}/{backend.value} imgsz={args.imgsz} "
+                f"frames={args.frames} trials={args.trials} ...",
+                flush=True,
+            )
+            res = run_benchmark(cfg)
+            results.append(res)
+            print(
+                f"  -> p50={res.latency_p50_ms}ms p95={res.latency_p95_ms}ms "
+                f"fps={res.fps} cpu={res.cpu_percent}% rss={res.ram_mb}MB",
+                flush=True,
+            )
 
-    _save_json(out / "benchmark.json", [r.to_dict() for r in results])
-    _write_markdown(out / "benchmark.md", results)
+    _save_json(
+        out / "benchmark.json",
+        {"env": benchmark_env(), "results": [r.to_dict() for r in results]},
+    )
+    _write_markdown(out / "benchmark.md", results, benchmark_env())
     print(f"[benchmark] wrote {out/'benchmark.json'} and {out/'benchmark.md'}")
     return 0
 
 
-def _write_markdown(path: Path, results: list[BenchmarkResult]) -> None:
+def cmd_export(args: argparse.Namespace) -> int:
+    from storeguard_vision.benchmark import _WEIGHTS
+    from storeguard_vision.export import export_model
+
+    out = Path(args.out) / "exports"
+    for m in (ModelCandidate(x) for x in args.models):
+        for backend in (Backend(b) for b in args.backends):
+            print(f"[export] {m.value} -> {backend.value} ...", flush=True)
+            path = export_model(_WEIGHTS[m], backend, args.imgsz, str(out))
+            print(f"  -> {path}", flush=True)
+    return 0
+
+
+def _write_markdown(
+    path: Path, results: list[BenchmarkResult], env: dict | None = None
+) -> None:
     lines = [
-        "| Model | imgsz | frames | p50 ms | p95 ms | mean ms | FPS | CPU % | RSS MB | dets |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| Model | Backend | imgsz | frames | trials "
+        "| p50 ms | p95 ms | mean ms | FPS | CPU % | RSS MB |",
+        "|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for r in results:
         lines.append(
-            f"| {r.model.value} | {r.input_size} | {r.frames} | {r.latency_p50_ms} | "
-            f"{r.latency_p95_ms} | {r.latency_mean_ms} | {r.fps} | {r.cpu_percent} | "
-            f"{r.ram_mb} | {r.total_detections} |"
+            f"| {r.model.value} | {r.backend.value} | {r.input_size} | {r.frames} | "
+            f"{r.trials} | {r.latency_p50_ms} | {r.latency_p95_ms} | {r.latency_mean_ms} | "
+            f"{r.fps} | {r.cpu_percent} | {r.ram_mb} |"
+        )
+    if env:
+        parts = [
+            f"{env.get('cpu_model') or env.get('processor')} x{env.get('cpu_count')}",
+            f"torch {env.get('torch')} (threads={env.get('torch_num_threads')})",
+            f"ultralytics {env.get('ultralytics')}",
+            f"onnxruntime {env.get('onnxruntime')}",
+            f"openvino {env.get('openvino')}",
+            f"py {env.get('python')}",
+        ]
+        lines.append("")
+        lines.append(
+            "> Environment (this machine, NOT the owner's target hardware): "
+            + " · ".join(parts)
+        )
+        lines.append("")
+        lines.append(
+            "> THROUGHPUT only — no labelled retail data, so no accuracy or "
+            "model-selection claim."
         )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n")
@@ -153,12 +198,26 @@ def main(argv: list[str] | None = None) -> int:
 
     b = sub.add_parser("benchmark", help="measure latency/FPS/resources on CPU")
     b.add_argument("--models", nargs="+", default=["yolo26n", "yolo11n"])
+    b.add_argument(
+        "--backends",
+        nargs="+",
+        default=["pytorch"],
+        help="pytorch onnx openvino (exports on demand)",
+    )
     b.add_argument("--clip", default=None, help="video/image/dir; omitted = synthetic")
     b.add_argument("--frames", type=int, default=60)
+    b.add_argument("--trials", type=int, default=1)
     b.add_argument("--imgsz", type=int, default=640)
     b.add_argument("--device", default="cpu")
     b.add_argument("--out", default="runs")
     b.set_defaults(func=cmd_benchmark)
+
+    e = sub.add_parser("export", help="export models to onnx/openvino (cached)")
+    e.add_argument("--models", nargs="+", default=["yolo26n", "yolo11n"])
+    e.add_argument("--backends", nargs="+", default=["onnx", "openvino"])
+    e.add_argument("--imgsz", type=int, default=640)
+    e.add_argument("--out", default="runs")
+    e.set_defaults(func=cmd_export)
 
     a = sub.add_parser("annotate", help="save annotated detections for a source")
     a.add_argument("--model", default="yolo26n")

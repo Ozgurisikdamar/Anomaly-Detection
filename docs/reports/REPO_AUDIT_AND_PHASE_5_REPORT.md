@@ -6,7 +6,12 @@
 
 - **Date:** 2026-10-30
 - **Base:** audit commit `abc0432`
-- **Commits (this run):** see §5.
+- **Commits (this run):**
+  - `7a9f883` ci: harden workflow (dispatch, least-privilege, concurrency, caching)
+  - `d7f53d8` feat(api): PostgreSQL repository, event ingest, SSE realtime
+  - `2c077c3` feat(pipeline): FILE DEMO vertical slice coordinator + wiring
+  - `87e736a` feat(web): review actions → API, SSE live inbox, source badges
+  - `b52b0f2` docs: this report + README status (SHA recorded in the next commit)
 
 ---
 

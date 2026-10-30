@@ -83,6 +83,43 @@ def cmd_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_streams(args: argparse.Namespace) -> int:
+    from storeguard_vision.benchmark import benchmark_env, run_streams
+
+    out = Path(args.out)
+    rows = []
+    for n in args.streams:
+        print(f"[streams] {args.model} n={n} frames={args.frames} ...", flush=True)
+        r = run_streams(
+            ModelCandidate(args.model),
+            n_streams=n,
+            frames=args.frames,
+            input_size=args.imgsz,
+            device=args.device,
+            clip_path=args.clip,
+        )
+        rows.append(r)
+        print(
+            f"  -> p50={r['latency_p50_ms']}ms p95={r['latency_p95_ms']}ms "
+            f"agg_fps={r['aggregate_fps']} cpu={r['cpu_percent']}% rss={r['ram_mb']}MB",
+            flush=True,
+        )
+    _save_json(out / "streams.json", {"env": benchmark_env(), "results": rows})
+    lines = [
+        "| Model | streams | frames/stream | p50 ms | p95 ms | agg FPS | CPU % | RSS MB |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for r in rows:
+        lines.append(
+            f"| {r['model']} | {r['n_streams']} | {r['frames_per_stream']} | "
+            f"{r['latency_p50_ms']} | {r['latency_p95_ms']} | {r['aggregate_fps']} | "
+            f"{r['cpu_percent']} | {r['ram_mb']} |"
+        )
+    (out / "streams.md").write_text("\n".join(lines) + "\n")
+    print(f"[streams] wrote {out/'streams.json'} and {out/'streams.md'}")
+    return 0
+
+
 def _write_markdown(
     path: Path, results: list[BenchmarkResult], env: dict | None = None
 ) -> None:
@@ -218,6 +255,16 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--imgsz", type=int, default=640)
     e.add_argument("--out", default="runs")
     e.set_defaults(func=cmd_export)
+
+    s = sub.add_parser("streams", help="multi-stream CPU/latency scaling")
+    s.add_argument("--model", default="yolo26n")
+    s.add_argument("--streams", nargs="+", type=int, default=[1, 2, 4])
+    s.add_argument("--frames", type=int, default=30)
+    s.add_argument("--clip", default=None)
+    s.add_argument("--imgsz", type=int, default=640)
+    s.add_argument("--device", default="cpu")
+    s.add_argument("--out", default="runs")
+    s.set_defaults(func=cmd_streams)
 
     a = sub.add_parser("annotate", help="save annotated detections for a source")
     a.add_argument("--model", default="yolo26n")

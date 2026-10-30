@@ -159,6 +159,77 @@ def _load_frames(config: BenchmarkConfig) -> list:
     return frames
 
 
+def run_streams(
+    model: ModelCandidate,
+    n_streams: int,
+    frames: int = 30,
+    input_size: int = 640,
+    device: str = "cpu",
+    clip_path: str | None = None,
+) -> dict:
+    """Run N isolated detectors in parallel threads; report aggregate load.
+
+    One `YoloDetector` per stream (never a shared tracker). Torch/ultralytics
+    release the GIL during native inference, so CPU threads genuinely contend —
+    this measures how latency/FPS/CPU scale with concurrent cameras on THIS
+    machine (not the owner's target hardware).
+    """
+    import time as _t
+    from concurrent.futures import ThreadPoolExecutor
+
+    from storeguard_vision.detect.detector import YoloDetector
+    from storeguard_vision.metrics import LatencyStats, ResourceSampler
+
+    imgs = [
+        f.image
+        for f in _load_frames(
+            BenchmarkConfig(
+                model=model, frames=frames, input_size=input_size, clip_path=clip_path
+            )
+        )
+    ]
+    if not imgs:
+        raise RuntimeError("no frames to benchmark")
+    detectors = [
+        YoloDetector(weights=_WEIGHTS[model], imgsz=input_size, device=device)
+        for _ in range(n_streams)
+    ]
+    for d in detectors:  # warmup each
+        d.infer(imgs[0])
+
+    per_stream: list[list[float]] = [[] for _ in range(n_streams)]
+
+    def work(idx: int) -> None:
+        det = detectors[idx]
+        for img in imgs:
+            t0 = _t.perf_counter()
+            det.infer(img)
+            per_stream[idx].append((_t.perf_counter() - t0) * 1000.0)
+
+    with ResourceSampler() as sampler:
+        wall0 = _t.perf_counter()
+        with ThreadPoolExecutor(max_workers=n_streams) as ex:
+            list(ex.map(work, range(n_streams)))
+        wall_s = _t.perf_counter() - wall0
+
+    pooled = [x for s in per_stream for x in s]
+    stats = LatencyStats.from_samples(pooled)
+    total_frames = n_streams * len(imgs)
+    return {
+        "model": model.value,
+        "n_streams": n_streams,
+        "frames_per_stream": len(imgs),
+        "latency_p50_ms": round(stats.p50_ms, 2),
+        "latency_p95_ms": round(stats.p95_ms, 2),
+        "aggregate_fps": round(total_frames / wall_s, 2) if wall_s else None,
+        "wall_s": round(wall_s, 2),
+        "cpu_percent": (
+            round(sampler.avg_cpu_percent, 1) if sampler.avg_cpu_percent else None
+        ),
+        "ram_mb": round(sampler.peak_rss_mb, 1) if sampler.peak_rss_mb else None,
+    }
+
+
 def _resolve_weights(config: BenchmarkConfig) -> str:
     """Return the weights path for the chosen backend (exporting on demand)."""
     if config.model not in _WEIGHTS:

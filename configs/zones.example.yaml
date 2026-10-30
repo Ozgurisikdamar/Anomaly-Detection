@@ -1,0 +1,26 @@
+# Example polygon/ROI zone configuration. Polygons are normalized [x, y] in [0,1]
+# so overlays render independently of camera resolution.
+zones:
+  - zone_id: zone_shelf_01_display
+    camera_id: cam_shelf_01
+    zone_type: SHELF_DISPLAY
+    label: "Shelf A — display"
+    polygon: [[0.10, 0.20], [0.55, 0.20], [0.55, 0.70], [0.10, 0.70]]
+
+  - zone_id: zone_shelf_01_pickup
+    camera_id: cam_shelf_01
+    zone_type: PICKUP_INTERACTION
+    label: "Shelf A — pickup"
+    polygon: [[0.55, 0.20], [0.90, 0.20], [0.90, 0.80], [0.55, 0.80]]
+
+  - zone_id: zone_sco_01_scan
+    camera_id: cam_sco_01
+    zone_type: SCAN_AREA
+    label: "SCO 1 — scan area"
+    polygon: [[0.15, 0.30], [0.45, 0.30], [0.45, 0.65], [0.15, 0.65]]
+
+  - zone_id: zone_sco_01_bag
+    camera_id: cam_sco_01
+    zone_type: BAGGING_SCALE_AREA
+    label: "SCO 1 — bagging/scale"
+    polygon: [[0.50, 0.30], [0.85, 0.30], [0.85, 0.75], [0.50, 0.75]]

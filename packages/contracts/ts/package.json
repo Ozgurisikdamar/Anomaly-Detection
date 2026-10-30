@@ -1,0 +1,10 @@
+{
+  "name": "@storeguard/contracts",
+  "version": "0.1.0",
+  "description": "StoreGuard shared TypeScript types. Mirror of the Pydantic contracts (source of truth).",
+  "type": "module",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "MIT",
+  "private": true
+}

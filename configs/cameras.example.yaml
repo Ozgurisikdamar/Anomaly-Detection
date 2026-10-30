@@ -1,0 +1,28 @@
+# Example camera registry (SIMULATED demo). No real RTSP URLs or credentials.
+# Real deployments keep RTSP credentials server-side and out of version control.
+store:
+  store_id: store_demo_01
+  name: StoreGuard Demo Market
+  timezone: Europe/Istanbul
+
+cameras:
+  - camera_id: cam_shelf_01
+    name: "Aisle 3 — Shelf A"
+    kind: shelf
+    source_kind: synthetic        # synthetic | file | rtsp
+    # source: rtsp://... (NEVER committed; provided via secret in real deploys)
+
+  - camera_id: cam_shelf_02
+    name: "Aisle 5 — Shelf C"
+    kind: shelf
+    source_kind: synthetic
+
+  - camera_id: cam_sco_01
+    name: "Self-checkout 1"
+    kind: checkout
+    source_kind: synthetic
+
+  - camera_id: cam_sco_02
+    name: "Self-checkout 2"
+    kind: checkout
+    source_kind: synthetic

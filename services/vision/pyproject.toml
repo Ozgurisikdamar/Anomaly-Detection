@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storeguard-vision"
+version = "0.1.0"
+description = "StoreGuard vision benchmark scaffold. Phase 0 ships methodology + a harness STUB only (no model execution)."
+requires-python = ">=3.11"
+# Lightweight core: synthetic capture + metrics (unit-testable without the ML
+# stack). Heavy model execution is the optional `ml` extra below.
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+# Phase 1 model execution. Installed on demand (CPU torch is large); kept out of
+# the default dev/CI install so a clean clone and baseline tests stay fast.
+ml = [
+  "ultralytics>=8.4,<9",
+  "opencv-python>=4.9,<5",
+  "psutil>=5.9",
+  # P4 CPU-acceleration benchmark: ONNX + OpenVINO export/runtime.
+  "onnx>=1.16",
+  "onnxruntime>=1.20",
+  "openvino>=2024",
+]
+
+[project.scripts]
+storeguard-vision = "storeguard_vision.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.black]
+# 88 to match the repo-root black that CI runs (black --check packages services apps/api).
+line-length = 88

@@ -1,0 +1,46 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / JS
+node_modules/
+.next/
+out/
+dist/
+.expo/
+web-build/
+*.tsbuildinfo
+
+# Env / secrets (never commit real secrets)
+.env
+.env.*
+!.env.example
+
+# Models / media / evidence (never commit footage or weights)
+*.pt
+*.onnx
+*.engine
+*.mp4
+*.avi
+*.mov
+*.mkv
+data/clips/
+data/footage/
+evidence/
+
+# OS / editor
+.DS_Store
+*.log
+
+# Vision caches / weights / benchmark runs (never commit)
+.cache/
+runs/
+services/vision/runs/
+*.pt
+.apilog
+.weblog

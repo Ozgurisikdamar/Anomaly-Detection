@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storeguard-pipeline"
+version = "0.1.0"
+description = "StoreGuard pipeline coordinator: file/RTSP capture -> detector/tracker -> zones -> shelf FSM -> event publication (P1)."
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+# Real video processing: YOLO detector + OpenCV + resource metrics.
+ml = ["ultralytics>=8.4,<9", "opencv-python>=4.9,<5", "psutil>=5.9", "pillow>=10"]
+
+[project.scripts]
+storeguard-pipeline = "storeguard_pipeline.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+# 88 to match the repo-root black that CI runs (black --check packages services apps/api).
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.black]
+line-length = 88

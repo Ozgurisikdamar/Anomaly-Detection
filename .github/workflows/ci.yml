@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: ["feat/storeguard-demo-foundation", "main"]
+  pull_request:
+  workflow_dispatch: {}
+
+# Least-privilege token; this CI only reads the checkout.
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same ref to save runner minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api:
+    name: Backend (lint, types, tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install Python packages
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+      - name: Ruff
+        run: ruff check packages services apps/api
+      - name: Black --check
+        run: black --check packages services apps/api
+      - name: Mypy
+        run: mypy apps/api/src services/vision/src services/integrations/src services/capture/src services/zones/src services/shelf-analytics/src services/checkout-analytics/src services/pipeline/src packages/contracts/python/src
+      - name: Pytest
+        run: pytest apps/api/tests services/integrations/tests services/vision/tests services/capture/tests services/zones/tests services/shelf-analytics/tests services/checkout-analytics/tests services/pipeline/tests
+      - name: Alembic migration (offline SQL)
+        run: alembic -c infra/migrations/alembic.ini upgrade head --sql > /dev/null
+
+  web:
+    name: Web (lint, types, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install
+        working-directory: apps/web
+        run: npm install --no-audit --no-fund
+      - name: Lint
+        working-directory: apps/web
+        run: npm run lint
+      - name: Typecheck
+        working-directory: apps/web
+        run: npm run typecheck
+      - name: Build
+        working-directory: apps/web
+        run: npm run build
+
+  mobile:
+    name: Mobile (types, web export)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+      - name: Install
+        working-directory: apps/mobile
+        run: npm install --no-audit --no-fund
+      - name: Typecheck
+        working-directory: apps/mobile
+        run: npm run typecheck
+      - name: Export web bundle
+        working-directory: apps/mobile
+        run: npm run export:web

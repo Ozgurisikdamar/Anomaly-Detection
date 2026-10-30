@@ -11,6 +11,7 @@ rule: missing integration data is UNKNOWN, never a violation.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from storeguard_contracts import (
@@ -302,12 +303,33 @@ def _checkouts() -> list[CheckoutSession]:
     return [term_01, term_02]
 
 
-def build_repository() -> InMemoryRepository:
-    """Construct a fresh repository populated with the SIMULATED seed."""
-    return InMemoryRepository(
+@dataclass
+class SeedData:
+    stores: list[Store]
+    cameras: list[Camera]
+    statuses: list[CameraStreamStatus]
+    events: list[AnomalyEvent]
+    checkouts: list[CheckoutSession]
+
+
+def build_seed_data() -> SeedData:
+    """The deterministic SIMULATED seed, as plain lists (shared by both repos)."""
+    return SeedData(
         stores=[_store()],
         cameras=_cameras(),
         statuses=_statuses(),
         events=_events(),
         checkouts=_checkouts(),
+    )
+
+
+def build_repository() -> InMemoryRepository:
+    """Construct a fresh in-memory repository populated with the SIMULATED seed."""
+    d = build_seed_data()
+    return InMemoryRepository(
+        stores=d.stores,
+        cameras=d.cameras,
+        statuses=d.statuses,
+        events=d.events,
+        checkouts=d.checkouts,
     )

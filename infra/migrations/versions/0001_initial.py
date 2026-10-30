@@ -63,6 +63,7 @@ def upgrade() -> None:
         sa.Column("track_refs_json", sa.Text(), nullable=False, server_default="[]"),
         sa.Column("human_review_required", sa.Boolean(), nullable=False, server_default=sa.true()),
         sa.Column("simulated", sa.Boolean(), nullable=False, server_default=sa.true()),
+        sa.Column("payload_json", sa.Text(), nullable=False, server_default="{}"),
     )
     op.create_table(
         "checkout_sessions",

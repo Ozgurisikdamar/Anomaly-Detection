@@ -21,11 +21,14 @@ class Settings(BaseSettings):
         "postgresql+psycopg://storeguard:storeguard@localhost:5432/storeguard"
     )
 
-    # CORS origins for the local web/mobile dev servers.
+    # CORS origins for the local web/mobile dev servers (localhost + 127.0.0.1).
     cors_origins: list[str] = [
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "http://localhost:19006",
+        "http://127.0.0.1:19006",
         "http://localhost:8081",
+        "http://127.0.0.1:8081",
     ]
 
 

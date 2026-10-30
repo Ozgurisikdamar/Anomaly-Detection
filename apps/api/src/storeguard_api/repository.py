@@ -40,6 +40,7 @@ class InMemoryRepository:
         self._statuses = {s.camera_id: s for s in statuses}
         self._events = {e.event_id: e for e in events}
         self._checkouts = {c.terminal_id: c for c in checkouts}
+        self._audit: list[dict[str, str | None]] = []
 
     # --- stores / cameras ------------------------------------------------
     def list_stores(self) -> list[Store]:
@@ -77,6 +78,10 @@ class InMemoryRepository:
             raise NotFoundError(event_id)
         return self._events[event_id]
 
+    def add_event(self, event: AnomalyEvent) -> AnomalyEvent:
+        self._events[event.event_id] = event
+        return event
+
     def _touch(self, event: AnomalyEvent) -> AnomalyEvent:
         self._events[event.event_id] = event
         return event
@@ -84,6 +89,7 @@ class InMemoryRepository:
     def acknowledge_event(self, event_id: str, reviewer: str) -> AnomalyEvent:
         event = self.get_event(event_id)
         event.status = EventStatus.ACKNOWLEDGED
+        self.append_audit(reviewer, "acknowledge", event_id, None)
         return self._touch(event)
 
     def resolve_event(
@@ -97,6 +103,7 @@ class InMemoryRepository:
             note=note,
             decided_at=datetime.now(tz=UTC),
         )
+        self.append_audit(reviewer, f"resolve:{decision.value}", event_id, note)
         return self._touch(event)
 
     def dismiss_event(
@@ -110,7 +117,25 @@ class InMemoryRepository:
             note=note,
             decided_at=datetime.now(tz=UTC),
         )
+        self.append_audit(reviewer, "dismiss", event_id, note)
         return self._touch(event)
+
+    # --- audit -----------------------------------------------------------
+    def append_audit(
+        self, actor: str, action: str, target: str, note: str | None
+    ) -> None:
+        self._audit.append(
+            {
+                "actor": actor,
+                "action": action,
+                "target": target,
+                "note": note,
+                "created_at": datetime.now(tz=UTC).isoformat(),
+            }
+        )
+
+    def list_audit(self) -> list[dict[str, str | None]]:
+        return list(self._audit)
 
     # --- checkouts -------------------------------------------------------
     def list_checkouts(self) -> list[CheckoutSession]:

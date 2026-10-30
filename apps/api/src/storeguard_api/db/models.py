@@ -85,6 +85,10 @@ class AnomalyEvent(Base):
     human_review_required: Mapped[bool] = mapped_column(Boolean, default=True)
     simulated: Mapped[bool] = mapped_column(Boolean, default=True)
 
+    # Full AnomalyEvent (incl. review + evidence) as JSON; the authoritative
+    # copy reconstructed on read. The columns above stay in sync for querying.
+    payload_json: Mapped[str] = mapped_column(Text, default="{}")
+
 
 class CheckoutSessionRow(Base):
     __tablename__ = "checkout_sessions"

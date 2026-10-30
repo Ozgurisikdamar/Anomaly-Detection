@@ -1,0 +1,6 @@
+# StoreGuard Python dev environment (single shared virtualenv).
+# Install order matters: contracts first (other packages import it).
+-e ./packages/contracts/python
+-e ./services/integrations
+-e ./services/vision
+-e ./apps/api[dev]

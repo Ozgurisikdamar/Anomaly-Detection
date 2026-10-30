@@ -1,0 +1,29 @@
+# Example rule thresholds. Tuned with measurements in later phases; these are
+# conservative demo defaults. Rules emit observable-anomaly events only, never
+# accusations, and missing integration data maps to UNKNOWN.
+
+shelf:
+  baseline_min_observations: 15        # stable detections before a baseline
+  removal_interval_seconds: 20         # absence window before a candidate
+  require_zone_not_occluded: true
+  require_camera_healthy: true
+  cooldown_seconds: 60                 # dedupe repeated candidates
+
+checkout:
+  scan_match_window_seconds: 8         # scan must tie to same terminal session
+  # If the scanner/POS feed is unavailable or late, emit TRANSACTION_DATA_MISSING
+  # / UNKNOWN — NEVER ITEM_PLACED_NOT_SCANNED.
+  require_healthy_pos_for_non_scan: true
+  scale:
+    tolerance_grams: 15
+    require_calibration_ok: true
+
+correlation:
+  dedupe_time_bucket_seconds: 30
+  min_evidence_components: 2           # temporal smoothing / minimum evidence
+
+severity_defaults:
+  shelf_removed_unresolved: REVIEW
+  item_placed_not_scanned: HIGH_REVIEW
+  scale_mismatch_review: REVIEW
+  transaction_data_missing: INFO

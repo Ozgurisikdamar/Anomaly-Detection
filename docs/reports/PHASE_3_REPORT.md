@@ -7,7 +7,8 @@
 > false-alert count is recorded. Awaiting review before Phase 4.
 
 - **Branch:** `feat/storeguard-demo-foundation`
-- **Phase 3 commit:** `__PHASE3_SHA__`
+- **Phase 3 commit:** `320178714945ba464ca4e928df4b5a3a3b559754`
+  (this line was recorded in the immediately following commit)
 - **Date:** 2026-10-30
 
 ## 1. What was built — `services/shelf-analytics`

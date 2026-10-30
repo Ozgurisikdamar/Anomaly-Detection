@@ -19,6 +19,18 @@ const ZONE_COLOURS: Record<string, string> = {
 const VW = 100;
 const VH = 56;
 
+// Map the camera source to a distinct, honest label.
+const SOURCE_BADGE: Record<string, { label: string; cls: string }> = {
+  rtsp: { label: "LIVE", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
+  file: { label: "FILE DEMO", cls: "border-amber-500/40 bg-amber-500/10 text-amber-200" },
+  synthetic: { label: "SIMULATED", cls: "border-slate-500/40 bg-slate-500/10 text-slate-300" },
+};
+
+function SourceBadge({ sourceKind }: { sourceKind: string }) {
+  const b = SOURCE_BADGE[sourceKind] ?? SOURCE_BADGE.synthetic;
+  return <span className={`rounded-full border px-2 py-0.5 text-[10px] ${b.cls}`}>{b.label}</span>;
+}
+
 function ZoneOverlay({ camera }: { camera: Camera }) {
   return (
     <svg
@@ -85,7 +97,10 @@ export default async function CamerasPage() {
             <div key={c.camera_id} className="rounded-xl border border-edge bg-panel p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="font-semibold text-white">{c.name}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-white">{c.name}</span>
+                    <SourceBadge sourceKind={c.source_kind} />
+                  </div>
                   <div className="text-xs text-muted">
                     {c.camera_id} · {c.kind} · {c.zones.length} zone(s)
                   </div>

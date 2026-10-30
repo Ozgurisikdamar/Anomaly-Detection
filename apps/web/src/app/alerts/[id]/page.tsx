@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ReviewActions } from "@/components/ReviewActions";
 import { loadEvent } from "@/lib/api";
 import { Panel, SeverityBadge, SourcePill } from "@/lib/ui";
 
@@ -92,20 +93,9 @@ export default async function EventDetailPage({ params }: { params: { id: string
           <Row label="Model version" value={event.model_version ?? "—"} />
           <Row label="Tracker version" value={event.tracker_version ?? "—"} />
           <Row label="Rule version" value={event.rule_version ?? "—"} />
-          <div className="mt-3 flex gap-2">
-            <button className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-slate-200" disabled>
-              Acknowledge
-            </button>
-            <button className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-slate-200" disabled>
-              Resolve
-            </button>
-            <button className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-slate-200" disabled>
-              Dismiss
-            </button>
+          <div className="mt-3">
+            <ReviewActions eventId={event.event_id} status={event.status} />
           </div>
-          <p className="mt-2 text-[11px] text-muted">
-            Buttons are scaffold placeholders; the API exposes these actions (Phase 5 wires them up).
-          </p>
         </Panel>
       </div>
     </div>

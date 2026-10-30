@@ -42,7 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               ))}
             </nav>
             <div className="mt-8 rounded-lg border border-edge p-3 text-xs text-muted">
-              Phase 0 scaffold. Vision/ML not implemented yet.
+              Demo build. Shelf events come from a FILE DEMO vision pipeline
+              (YOLO + ByteTrack); POS/scale are SIMULATED.
             </div>
           </aside>
           <main className="flex-1 p-6">{children}</main>

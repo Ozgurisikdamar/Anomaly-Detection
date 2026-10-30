@@ -3,6 +3,13 @@
 A human-in-the-loop computer vision demo for shelf/aisle monitoring and
 self-checkout transaction anomaly detection.
 
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/Ozgurisikdamar/Anomaly-Detection)
+
+> Deploys the **web dashboard** (`apps/web`) only. Set `NEXT_PUBLIC_API_BASE` to a
+> hosted API URL and add the site origin to `STOREGUARD_CORS_ORIGINS_EXTRA`, or it
+> shows SIMULATED sample data. The API and vision pipeline run elsewhere — see
+> [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
 > **Status: Phase 4 (self-checkout MVP).** Phases 0–3 (baseline, vision
 > workbench, camera supervision & zones, shelf event MVP) + a self-checkout
 > terminal state machine with scan/scale reconciliation (scenarios 4–8 pass

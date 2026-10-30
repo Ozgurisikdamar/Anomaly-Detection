@@ -7,7 +7,8 @@
 > unavailable**. Awaiting review before Phase 5.
 
 - **Branch:** `feat/storeguard-demo-foundation`
-- **Phase 4 commit:** `__PHASE4_SHA__`
+- **Phase 4 commit:** `daf54464dad0250158c8e7e863cd8f87bebef906`
+  (this line was recorded in the immediately following commit)
 - **Date:** 2026-10-30
 
 ## 1. What was built — `services/checkout-analytics`

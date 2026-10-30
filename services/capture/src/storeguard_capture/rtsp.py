@@ -28,7 +28,18 @@ class RtspFrameSource:
     def __iter__(self) -> Iterator[Frame]:
         import cv2  # lazy (ml extra)
 
-        self._cap = cv2.VideoCapture(self.url)
+        # Use the FFMPEG backend so the open/read timeouts are honoured (the
+        # default backend ignores them), and keep only the latest frame so a slow
+        # consumer never reads stale buffered frames from a live camera.
+        timeout_ms = str(int(self.open_timeout_s * 1000))
+        self._cap = cv2.VideoCapture(self.url, cv2.CAP_FFMPEG)
+        for prop in ("CAP_PROP_OPEN_TIMEOUT_MSEC", "CAP_PROP_READ_TIMEOUT_MSEC"):
+            prop_id = getattr(cv2, prop, None)
+            if prop_id is not None:
+                self._cap.set(prop_id, float(timeout_ms))
+        buf = getattr(cv2, "CAP_PROP_BUFFERSIZE", None)
+        if buf is not None:
+            self._cap.set(buf, 1)
         if not self._cap.isOpened():
             raise ConnectionError(f"could not open stream: {self.source_id}")
         i = 0

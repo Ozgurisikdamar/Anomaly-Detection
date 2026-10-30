@@ -18,6 +18,10 @@ ml = [
   "ultralytics>=8.4,<9",
   "opencv-python>=4.9,<5",
   "psutil>=5.9",
+  # P4 CPU-acceleration benchmark: ONNX + OpenVINO export/runtime.
+  "onnx>=1.16",
+  "onnxruntime>=1.20",
+  "openvino>=2024",
 ]
 
 [project.scripts]

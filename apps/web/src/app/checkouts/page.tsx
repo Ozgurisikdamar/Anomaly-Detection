@@ -27,6 +27,14 @@ export default async function CheckoutsPage() {
         <SourcePill source={source} />
       </header>
 
+      <div className="rounded-lg border border-edge bg-panel p-3 text-xs text-muted">
+        Non-scan review events are produced by correlating camera bagging-zone
+        observations with the (SIMULATED) scanner/POS feed by terminal, session and
+        synchronized UTC time. A missing <em>or</em> delayed POS feed yields{" "}
+        <span className="text-slate-200">TRANSACTION_DATA_MISSING</span> (UNKNOWN) — never a
+        non-scan alert. Scale mismatch requires scale telemetry.
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         {checkouts.map((c) => (
           <Panel key={c.terminal_id} title={`${c.terminal_id} · ${c.state}`}>

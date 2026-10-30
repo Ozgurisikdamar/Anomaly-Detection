@@ -73,10 +73,16 @@ python -m storeguard_vision.cli track     --model yolo26n --image <img> --out ru
 
 ## Implementation
 Follow the phase gates in the roadmap. Phases 0–4 are complete. The post-audit
-work package (`docs/REPO_AUDIT_AND_NEXT_WORK.md`) is underway: **P0** (CI root
-cause + local green baseline — Actions is blocked owner-side on runner/billing,
-see the report) and **P1** (a real FILE DEMO vertical slice: video → YOLO26n +
-ByteTrack → zones → shelf FSM → event → API with PostgreSQL persistence → live
-web inbox + review) are done. See `docs/reports/REPO_AUDIT_AND_PHASE_5_REPORT.md`.
-Awaiting owner review before P2. Shelf events come from a FILE DEMO vision
-pipeline; POS/scale remain SIMULATED and labelled.
+work package (`docs/REPO_AUDIT_AND_NEXT_WORK.md`) is underway:
+- **P0** (CI root cause + local green baseline — Actions is blocked owner-side on
+  runner/billing) and **P1** (a real FILE DEMO vertical slice: video → YOLO26n +
+  ByteTrack → zones → shelf FSM → event → API with PostgreSQL persistence → live
+  web inbox + review) — see `docs/reports/REPO_AUDIT_AND_PHASE_5_REPORT.md`.
+- **P2** (self-checkout visual↔POS correlation: a checkout FILE DEMO camera +
+  SIMULATED POS feed correlated by terminal/session/UTC through the checkout FSM
+  to an event in the web dashboard; a missing **or** delayed POS feed yields
+  UNKNOWN, never a non-scan) — see `docs/reports/REPO_AUDIT_P2_REPORT.md`.
+
+Awaiting owner review before P3 (evidence/mobile). Shelf and checkout events come
+from a FILE DEMO vision pipeline; POS/scanner/scale remain SIMULATED and labelled.
+Try it: `make demo` (shelf) or `make demo-checkout` (self-checkout).

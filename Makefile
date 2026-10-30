@@ -5,7 +5,7 @@ PIP := .venv/bin/pip
 
 .PHONY: help setup setup-web setup-mobile lint format typecheck test \
         dev-api dev-web dev-mobile export-mobile-web migrate-sql compose-config \
-        demo
+        demo demo-checkout
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN{FS=":.*?## "}{printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -64,3 +64,13 @@ demo: ## P1 vertical slice: Postgres + API (DB mode) + file-demo pipeline -> web
 	  sleep 4
 	.venv/bin/python -m storeguard_pipeline.cli pipeline-demo --out runs/pipeline --api-base http://localhost:8000
 	@echo "Pipeline event ingested. Open the web dashboard (make dev-web) -> Alerts inbox."
+
+demo-checkout: ## P2 checkout slice: API (DB mode) + checkout file-demo + SIMULATED POS -> web inbox
+	docker compose up -d postgres
+	STOREGUARD_USE_IN_MEMORY_SEED=false \
+	  .venv/bin/alembic -c infra/migrations/alembic.ini upgrade head
+	STOREGUARD_USE_IN_MEMORY_SEED=false \
+	  .venv/bin/uvicorn --app-dir apps/api/src storeguard_api.main:app --port 8000 & \
+	  sleep 4
+	.venv/bin/python -m storeguard_pipeline.cli checkout-pipeline-demo --feed healthy --out runs/checkout --api-base http://localhost:8000
+	@echo "Checkout non-scan event ingested. Try --feed missing / --feed delayed: UNKNOWN, zero non-scan."

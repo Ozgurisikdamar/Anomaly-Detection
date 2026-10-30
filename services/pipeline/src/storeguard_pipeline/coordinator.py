@@ -56,7 +56,9 @@ class PipelineCoordinator:
 
     def __init__(self, rules: ShelfRules | None = None) -> None:
         # Demo thresholds: short enough that the removal fires within a short clip.
-        self.rules = rules or ShelfRules(baseline_min_observations=5, removal_interval_s=1.0)
+        self.rules = rules or ShelfRules(
+            baseline_min_observations=5, removal_interval_s=1.0
+        )
 
     def run_camera(self, cfg: CameraConfig, out_dir: str | Path) -> PipelineResult:
         from storeguard_vision.capture.file_source import FileFrameSource
@@ -66,7 +68,9 @@ class PipelineCoordinator:
         out = Path(out_dir)
         out.mkdir(parents=True, exist_ok=True)
 
-        detector = YoloDetector(weights=cfg.weights, imgsz=cfg.imgsz, device="cpu")  # per-camera
+        detector = YoloDetector(
+            weights=cfg.weights, imgsz=cfg.imgsz, device="cpu"
+        )  # per-camera
         monitor = ShelfMonitor(cfg.store_id, self.rules)
         shelf_roi = _roi_bbox(cfg.shelf_polygon)
         interaction_zone = cfg.pickup_polygon or cfg.shelf_polygon
@@ -109,7 +113,9 @@ class PipelineCoordinator:
                 )
                 for ev in monitor.process(tick):
                     ev.evidence = [self._save_evidence(frames, out, ev.event_id)]
-                    ev.model_version = f"{cfg.weights} (person=COCO) + {DEMO_DETECTOR_LABEL}"
+                    ev.model_version = (
+                        f"{cfg.weights} (person=COCO) + {DEMO_DETECTOR_LABEL}"
+                    )
                     events.append(ev)
 
         stats = LatencyStats.from_samples(latencies)
@@ -120,8 +126,12 @@ class PipelineCoordinator:
             "latency_p95_ms": round(stats.p95_ms, 2),
             "latency_mean_ms": round(stats.mean_ms, 2),
             "fps": round(stats.fps, 2),
-            "frame_age_p95_ms": round(stats.p95_ms, 2),  # processing-cadence proxy (file batch)
-            "cpu_percent": (round(sampler.avg_cpu_percent, 1) if sampler.avg_cpu_percent else None),
+            "frame_age_p95_ms": round(
+                stats.p95_ms, 2
+            ),  # processing-cadence proxy (file batch)
+            "cpu_percent": (
+                round(sampler.avg_cpu_percent, 1) if sampler.avg_cpu_percent else None
+            ),
             "ram_mb": round(sampler.peak_rss_mb, 1) if sampler.peak_rss_mb else None,
             "detector": cfg.weights,
             "source_label": cfg.source_label,
@@ -135,7 +145,9 @@ class PipelineCoordinator:
         import numpy as np
 
         if not frames:
-            return EvidenceRef(evidence_id=f"ev_{event_id}", kind="clip", available=False)
+            return EvidenceRef(
+                evidence_id=f"ev_{event_id}", kind="clip", available=False
+            )
         pre = frames[max(0, len(frames) - 10)]
         now = frames[-1]
         strip = np.hstack([cv2.resize(pre, (320, 180)), cv2.resize(now, (320, 180))])

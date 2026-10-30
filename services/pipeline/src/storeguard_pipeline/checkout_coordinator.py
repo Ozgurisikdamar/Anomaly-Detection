@@ -64,7 +64,9 @@ class CheckoutPipelineCoordinator:
     def __init__(self, rules: CheckoutRules | None = None) -> None:
         self.rules = rules or DEMO_RULES
 
-    def run(self, cfg: CheckoutCameraConfig, feed: PosFeed, out_dir: str | Path) -> PipelineResult:
+    def run(
+        self, cfg: CheckoutCameraConfig, feed: PosFeed, out_dir: str | Path
+    ) -> PipelineResult:
         from storeguard_vision.capture.file_source import FileFrameSource
         from storeguard_vision.detect.detector import YoloDetector
         from storeguard_vision.metrics import LatencyStats, ResourceSampler
@@ -117,7 +119,10 @@ class CheckoutPipelineCoordinator:
                 # --- correlate delivered POS messages by terminal/session --
                 for dm in feed.drain(t):
                     msg = dm.message
-                    if msg.terminal_id != cfg.terminal_id or msg.session_id != cfg.session_id:
+                    if (
+                        msg.terminal_id != cfg.terminal_id
+                        or msg.session_id != cfg.session_id
+                    ):
                         continue  # mismatched session never correlates
                     if dm.lateness_s > self.rules.feed_lateness_window_s:
                         monitor.set_feed_degraded(cfg.terminal_id)
@@ -139,7 +144,9 @@ class CheckoutPipelineCoordinator:
                 events += monitor.advance(cfg.terminal_id, t)
 
         # Flush any window still open at clip end.
-        events += monitor.finalize(cfg.terminal_id, last_t + self.rules.scan_match_window_s + 1.0)
+        events += monitor.finalize(
+            cfg.terminal_id, last_t + self.rules.scan_match_window_s + 1.0
+        )
 
         for ev in events:
             ev.evidence = [PipelineCoordinator._save_evidence(frames, out, ev.event_id)]
@@ -154,7 +161,9 @@ class CheckoutPipelineCoordinator:
             "latency_mean_ms": round(stats.mean_ms, 2),
             "fps": round(stats.fps, 2),
             "frame_age_p95_ms": round(stats.p95_ms, 2),
-            "cpu_percent": (round(sampler.avg_cpu_percent, 1) if sampler.avg_cpu_percent else None),
+            "cpu_percent": (
+                round(sampler.avg_cpu_percent, 1) if sampler.avg_cpu_percent else None
+            ),
             "ram_mb": round(sampler.peak_rss_mb, 1) if sampler.peak_rss_mb else None,
             "detector": cfg.weights,
             "source_label": cfg.source_label,

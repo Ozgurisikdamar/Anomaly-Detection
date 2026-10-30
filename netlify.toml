@@ -10,6 +10,12 @@
 [build]
   base = "apps/web"
   command = "npm run build"
+  # Point at the Next.js build output, NOT the base dir. Setting publish here
+  # makes netlify.toml win over the UI publish field (which otherwise defaults it
+  # to the base directory and fails: "publish directory cannot be the same as the
+  # base directory"). Path is repo-root-relative. Also clear the publish field in
+  # the Netlify UI (Build & deploy → Build settings) so it no longer overrides.
+  publish = "apps/web/.next"
 
 [build.environment]
   NODE_VERSION = "22"

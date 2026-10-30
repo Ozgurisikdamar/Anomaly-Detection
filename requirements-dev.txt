@@ -6,4 +6,5 @@
 -e ./services/capture
 -e ./services/zones
 -e ./services/shelf-analytics
+-e ./services/checkout-analytics
 -e ./apps/api[dev]

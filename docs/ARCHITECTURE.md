@@ -31,7 +31,7 @@ RTSP/file/synthetic → Capture → Decode → Sample/ROI → Detector → Track
 | Capture (supervision) | `services/capture` | ✅ Phase 2 — RTSP-capable supervised reader, reconnect/health/frame-age, bounded latest-frame buffer |
 | Zones | `services/zones` | ✅ Phase 2 — polygon geometry, point-in-polygon, YAML loader, overlay |
 | Shelf analytics | `services/shelf-analytics` | ✅ Phase 3 — occupancy baseline + unresolved-removal FSM, occlusion/offline suppression, person association, evidence + review |
-| Checkout analytics | (later) | ⏳ Phase 4 |
+| Checkout analytics | `services/checkout-analytics` | ✅ Phase 4 — terminal state machine + scan/scale reconciliation (B1–B4); feed-missing → UNKNOWN, never non-scan |
 | Persistence | `apps/api/src/.../db`, `infra/migrations` | ✅ models + initial Alembic migration (inert) |
 
 ## Data / persistence

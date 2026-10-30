@@ -23,9 +23,9 @@ jobs:
       - name: Black --check
         run: black --check packages services apps/api
       - name: Mypy
-        run: mypy apps/api/src services/vision/src services/integrations/src services/capture/src services/zones/src services/shelf-analytics/src packages/contracts/python/src
+        run: mypy apps/api/src services/vision/src services/integrations/src services/capture/src services/zones/src services/shelf-analytics/src services/checkout-analytics/src packages/contracts/python/src
       - name: Pytest
-        run: pytest apps/api/tests services/integrations/tests services/vision/tests services/capture/tests services/zones/tests services/shelf-analytics/tests
+        run: pytest apps/api/tests services/integrations/tests services/vision/tests services/capture/tests services/zones/tests services/shelf-analytics/tests services/checkout-analytics/tests
       - name: Alembic migration (offline SQL)
         run: alembic -c infra/migrations/alembic.ini upgrade head --sql > /dev/null
 

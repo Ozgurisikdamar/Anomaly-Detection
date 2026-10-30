@@ -87,8 +87,15 @@ work package (`docs/REPO_AUDIT_AND_NEXT_WORK.md`) is underway:
   real acknowledge/resolve/dismiss, polling realtime and source labels;
   **server-authoritative** review transitions that are audited and reject
   invalid/duplicate actions with 409) — see `docs/reports/REPO_AUDIT_P3_REPORT.md`.
+- **P4** (CPU acceleration benchmark — PyTorch vs ONNX vs **OpenVINO** (~2× on
+  Intel) × YOLO26n/YOLO11n, with multi-stream scaling and full environment
+  capture; a hardened + validated RTSP capture path; and a deployment /
+  security-KVKK / clean-clone runbook in `docs/DEPLOYMENT.md`) — see
+  `docs/reports/REPO_AUDIT_P4_REPORT.md`. Throughput only (no labelled retail
+  data); real-camera + target-hardware validation are owner tasks.
 
-Awaiting owner review before P4 (real RTSP camera validation + OpenVINO
-benchmark). Shelf and checkout events come from a FILE DEMO vision pipeline;
-POS/scanner/scale remain SIMULATED and labelled. Try it: `make demo` (shelf) or
-`make demo-checkout` (self-checkout).
+The P0–P4 post-audit work package is complete. Shelf and checkout events come
+from a FILE DEMO vision pipeline; POS/scanner/scale remain SIMULATED and
+labelled. Try it: `make demo` (shelf) or `make demo-checkout` (self-checkout);
+benchmark with `make setup-ml && make benchmark`. See `docs/DEPLOYMENT.md` for the
+runbook and the security posture required before any real deployment.

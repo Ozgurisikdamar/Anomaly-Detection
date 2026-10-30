@@ -1,0 +1,50 @@
+{
+  "env": {
+    "python": "3.13.17",
+    "platform": "Linux-6.18.44-fc-v185-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "cpu_count": 4,
+    "torch": "2.15.0+cu132",
+    "opencv": "5.0.0",
+    "ultralytics": "8.4.193",
+    "onnxruntime": "1.31.1",
+    "openvino": "2026.4.1-22982-e213a147257-releases/2026/4",
+    "torch_num_threads": 3,
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz"
+  },
+  "results": [
+    {
+      "model": "yolo26n",
+      "n_streams": 1,
+      "frames_per_stream": 24,
+      "latency_p50_ms": 59.76,
+      "latency_p95_ms": 71.1,
+      "aggregate_fps": 16.38,
+      "wall_s": 1.46,
+      "cpu_percent": 138.8,
+      "ram_mb": 823.4
+    },
+    {
+      "model": "yolo26n",
+      "n_streams": 2,
+      "frames_per_stream": 24,
+      "latency_p50_ms": 86.63,
+      "latency_p95_ms": 102.05,
+      "aggregate_fps": 22.86,
+      "wall_s": 2.1,
+      "cpu_percent": 217.7,
+      "ram_mb": 872.5
+    },
+    {
+      "model": "yolo26n",
+      "n_streams": 4,
+      "frames_per_stream": 24,
+      "latency_p50_ms": 137.61,
+      "latency_p95_ms": 200.89,
+      "aggregate_fps": 27.33,
+      "wall_s": 3.51,
+      "cpu_percent": 286.1,
+      "ram_mb": 997.4
+    }
+  ]
+}

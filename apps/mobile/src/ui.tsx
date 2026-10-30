@@ -19,6 +19,15 @@ export function SimulatedTag() {
   );
 }
 
+export function SourceTag({ label }: { label: "FILE DEMO" | "SIMULATED" }) {
+  const c = label === "FILE DEMO" ? colors.accent : colors.amber;
+  return (
+    <View style={[styles.badge, { borderColor: c }]}>
+      <Text style={[styles.badgeText, { color: c }]}>{label}</Text>
+    </View>
+  );
+}
+
 export function Button({
   label,
   onPress,

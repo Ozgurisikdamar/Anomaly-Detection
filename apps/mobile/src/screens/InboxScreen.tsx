@@ -1,27 +1,47 @@
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 import type { AnomalyEvent } from "@storeguard/contracts";
 
-import { fetchEvents, type DataSource } from "../api";
+import { fetchEvents, sourceLabel, type DataSource } from "../api";
 import { colors } from "../theme";
-import { SeverityBadge } from "../ui";
+import { SeverityBadge, SourceTag } from "../ui";
+
+const POLL_MS = 5000;
 
 export function InboxScreen({ onOpen }: { onOpen: (e: AnomalyEvent) => void }) {
   const [events, setEvents] = useState<AnomalyEvent[] | null>(null);
   const [source, setSource] = useState<DataSource>("sample");
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    fetchEvents().then((r) => {
-      if (!active) return;
-      setEvents(r.data);
-      setSource(r.source);
-    });
-    return () => {
-      active = false;
-    };
+  const load = useCallback(async () => {
+    const r = await fetchEvents();
+    setEvents(r.data);
+    setSource(r.source);
   }, []);
+
+  // In-app realtime refresh by polling (RN has no EventSource); plus pull-to-refresh.
+  const savedLoad = useRef(load);
+  savedLoad.current = load;
+  useEffect(() => {
+    void savedLoad.current();
+    const id = setInterval(() => void savedLoad.current(), POLL_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
 
   if (!events) {
     return (
@@ -32,10 +52,18 @@ export function InboxScreen({ onOpen }: { onOpen: (e: AnomalyEvent) => void }) {
   }
 
   return (
-    <ScrollView style={styles.wrap} contentContainerStyle={{ padding: 16 }}>
+    <ScrollView
+      style={styles.wrap}
+      contentContainerStyle={{ padding: 16 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} />
+      }
+    >
       <View style={styles.header}>
         <Text style={styles.title}>Alerts inbox</Text>
-        <Text style={styles.source}>{source === "live" ? "live API" : "sample / offline"}</Text>
+        <Text style={styles.source}>
+          {source === "live" ? "● live (polling 5s)" : "○ sample / offline"}
+        </Text>
       </View>
       <Text style={styles.sub}>{events.length} events · all require human review</Text>
 
@@ -43,6 +71,7 @@ export function InboxScreen({ onOpen }: { onOpen: (e: AnomalyEvent) => void }) {
         <Pressable key={e.event_id} style={styles.row} onPress={() => onOpen(e)}>
           <View style={styles.rowTop}>
             <SeverityBadge severity={e.severity} />
+            <SourceTag label={sourceLabel(e)} />
             {e.missing_data_flags.length > 0 ? (
               <Text style={styles.missing}>missing data</Text>
             ) : null}
@@ -65,7 +94,7 @@ const styles = StyleSheet.create({
   source: { color: colors.muted, fontSize: 12 },
   sub: { color: colors.muted, marginBottom: 12, marginTop: 2 },
   row: { backgroundColor: colors.panel, borderColor: colors.edge, borderWidth: 1, borderRadius: 12, padding: 14, marginBottom: 10 },
-  rowTop: { flexDirection: "row", alignItems: "center", gap: 8 },
+  rowTop: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
   missing: { color: colors.muted, fontSize: 10, backgroundColor: colors.edge, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
   type: { color: colors.text, fontWeight: "700", marginTop: 8 },
   meta: { color: colors.muted, fontSize: 12, marginTop: 2 },

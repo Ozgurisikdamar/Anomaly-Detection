@@ -3,8 +3,11 @@
 A human-in-the-loop computer vision demo for shelf/aisle monitoring and
 self-checkout transaction anomaly detection.
 
-> **Status: Phase 0 (engineering baseline) scaffold.** No vision/ML runs yet and
-> all data is **SIMULATED**. See the [Phase 0 report](docs/reports/PHASE_0_REPORT.md).
+> **Status: Phase 1 (offline vision workbench).** Phase 0 engineering baseline +
+> a real CPU detection/tracking workbench with a measured YOLO26n vs YOLO11n
+> benchmark. The dashboard/API demo data is still **SIMULATED**. See the
+> [Phase 0](docs/reports/PHASE_0_REPORT.md) and
+> [Phase 1](docs/reports/PHASE_1_REPORT.md) reports.
 
 ## Start here
 - [Demo implementation roadmap](docs/STOREGUARD_DEMO_ROADMAP.md) — source of truth
@@ -57,7 +60,16 @@ make setup-mobile && make dev-mobile  # Expo dev server (or `make export-mobile-
 Docker: `docker compose up --build` (api + web + postgres). The API runs from the
 in-memory SIMULATED seed in Phase 0; PostgreSQL is included for later phases.
 
+## Vision workbench (Phase 1)
+```bash
+pip install -e "services/vision[ml]"   # ultralytics/opencv/psutil (CPU torch)
+python -m storeguard_vision.cli benchmark --models yolo26n yolo11n --clip <imgs> --out runs
+python -m storeguard_vision.cli annotate  --model yolo26n --clip <img|dir> --out runs
+python -m storeguard_vision.cli track     --model yolo26n --image <img> --out runs
+```
+
 ## Implementation
-Follow the phase gates in the roadmap. Claude Code implemented **Phase 0 only**
-and is awaiting product-owner review before Phase 1. No models were run; all
-camera/POS/scale data is clearly labelled SIMULATED.
+Follow the phase gates in the roadmap. Phases 0 (baseline) and 1 (offline vision
+workbench + measured YOLO26n/YOLO11n CPU benchmark) are complete; awaiting
+product-owner review before Phase 2. The dashboard/API demo data is clearly
+labelled SIMULATED.

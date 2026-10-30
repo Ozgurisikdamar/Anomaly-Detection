@@ -27,7 +27,7 @@ RTSP/file/synthetic → Capture → Decode → Sample/ROI → Detector → Track
 | Web dashboard | `apps/web` | ✅ Next.js scaffold (Overview/Alerts/Cameras/Checkouts) |
 | Mobile app | `apps/mobile` | ✅ Expo scaffold (login/inbox/detail/cameras) |
 | Integrations | `services/integrations` | ✅ SIMULATED POS/scanner/scale generators |
-| Vision | `services/vision` | ⏳ benchmark methodology + harness **stub** (no model) |
+| Vision | `services/vision` | ✅ Phase 1 workbench — capture adapters, YOLO detector/tracker, annotated output, measured YOLO26n vs YOLO11n CPU benchmark (`ml` extra) |
 | Capture / Zones / Shelf / Checkout analytics | (later) | ⏳ Phase 1–4 |
 | Persistence | `apps/api/src/.../db`, `infra/migrations` | ✅ models + initial Alembic migration (inert) |
 

@@ -7,10 +7,21 @@ name = "storeguard-vision"
 version = "0.1.0"
 description = "StoreGuard vision benchmark scaffold. Phase 0 ships methodology + a harness STUB only (no model execution)."
 requires-python = ">=3.11"
-# Heavy ML deps (ultralytics, opencv, onnxruntime, openvino) are intentionally
-# NOT declared in Phase 0 — no model is run and nothing is downloaded. They are
-# added in Phase 1 behind the documented benchmark harness.
-dependencies = []
+# Lightweight core: synthetic capture + metrics (unit-testable without the ML
+# stack). Heavy model execution is the optional `ml` extra below.
+dependencies = ["numpy>=1.26"]
+
+[project.optional-dependencies]
+# Phase 1 model execution. Installed on demand (CPU torch is large); kept out of
+# the default dev/CI install so a clean clone and baseline tests stay fast.
+ml = [
+  "ultralytics>=8.4,<9",
+  "opencv-python>=4.9,<5",
+  "psutil>=5.9",
+]
+
+[project.scripts]
+storeguard-vision = "storeguard_vision.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

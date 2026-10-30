@@ -36,3 +36,9 @@ evidence/
 # OS / editor
 .DS_Store
 *.log
+
+# Vision caches / weights / benchmark runs (never commit)
+.cache/
+runs/
+services/vision/runs/
+*.pt

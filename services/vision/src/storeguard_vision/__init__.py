@@ -1,9 +1,15 @@
-"""StoreGuard vision benchmark scaffold (Phase 0).
+"""StoreGuard vision workbench.
 
-No detector or tracker runs in Phase 0 and no model weights are downloaded. This
-package carries the CPU-first benchmark *methodology* and a harness **stub**. The
-real YOLO26n vs YOLO11n benchmark is implemented in Phase 1.
+Phase 1: offline vision workbench — file/synthetic capture adapters, a YOLO
+detector + tracker wrapper, annotated output, and a CPU benchmark that measures
+YOLO26n vs YOLO11n on this machine.
+
+Model execution needs the optional ``ml`` extra (ultralytics, opencv-python,
+psutil). Importing this package does **not** import those heavy dependencies;
+only the capture/detector/benchmark modules pull them in when used, so the
+lightweight unit tests and a clean install stay fast.
 """
 
-__version__ = "0.1.0"
-PHASE_0_STUB = True
+__version__ = "0.2.0"
+# Phase 1: the benchmark is implemented (was a stub in Phase 0).
+BENCHMARK_IMPLEMENTED = True

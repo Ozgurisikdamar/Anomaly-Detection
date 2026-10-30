@@ -12,13 +12,14 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from storeguard_contracts import AnomalyEvent, CameraStreamState, EvidenceRef
+from storeguard_contracts import AnomalyEvent, CameraStreamState
 from storeguard_shelf.model import ShelfRules, ShelfTick
 from storeguard_shelf.monitor import ShelfMonitor
 from storeguard_zones.geometry import point_in_polygon
 
 from storeguard_pipeline.demo_product_detector import LABEL as DEMO_DETECTOR_LABEL
 from storeguard_pipeline.demo_product_detector import product_present_in_roi
+from storeguard_pipeline.evidence_clip import save_evidence_gif
 
 Polygon = list[tuple[float, float]]
 
@@ -56,9 +57,7 @@ class PipelineCoordinator:
 
     def __init__(self, rules: ShelfRules | None = None) -> None:
         # Demo thresholds: short enough that the removal fires within a short clip.
-        self.rules = rules or ShelfRules(
-            baseline_min_observations=5, removal_interval_s=1.0
-        )
+        self.rules = rules or ShelfRules(baseline_min_observations=5, removal_interval_s=1.0)
 
     def run_camera(self, cfg: CameraConfig, out_dir: str | Path) -> PipelineResult:
         from storeguard_vision.capture.file_source import FileFrameSource
@@ -68,9 +67,7 @@ class PipelineCoordinator:
         out = Path(out_dir)
         out.mkdir(parents=True, exist_ok=True)
 
-        detector = YoloDetector(
-            weights=cfg.weights, imgsz=cfg.imgsz, device="cpu"
-        )  # per-camera
+        detector = YoloDetector(weights=cfg.weights, imgsz=cfg.imgsz, device="cpu")  # per-camera
         monitor = ShelfMonitor(cfg.store_id, self.rules)
         shelf_roi = _roi_bbox(cfg.shelf_polygon)
         interaction_zone = cfg.pickup_polygon or cfg.shelf_polygon
@@ -112,10 +109,10 @@ class PipelineCoordinator:
                     track_ref=track_ref,
                 )
                 for ev in monitor.process(tick):
-                    ev.evidence = [self._save_evidence(frames, out, ev.event_id)]
-                    ev.model_version = (
-                        f"{cfg.weights} (person=COCO) + {DEMO_DETECTOR_LABEL}"
-                    )
+                    ev.evidence = [
+                        save_evidence_gif(frames, out, f"ev_{ev.event_id}", cfg.shelf_polygon)
+                    ]
+                    ev.model_version = f"{cfg.weights} (person=COCO) + {DEMO_DETECTOR_LABEL}"
                     events.append(ev)
 
         stats = LatencyStats.from_samples(latencies)
@@ -126,41 +123,10 @@ class PipelineCoordinator:
             "latency_p95_ms": round(stats.p95_ms, 2),
             "latency_mean_ms": round(stats.mean_ms, 2),
             "fps": round(stats.fps, 2),
-            "frame_age_p95_ms": round(
-                stats.p95_ms, 2
-            ),  # processing-cadence proxy (file batch)
-            "cpu_percent": (
-                round(sampler.avg_cpu_percent, 1) if sampler.avg_cpu_percent else None
-            ),
+            "frame_age_p95_ms": round(stats.p95_ms, 2),  # processing-cadence proxy (file batch)
+            "cpu_percent": (round(sampler.avg_cpu_percent, 1) if sampler.avg_cpu_percent else None),
             "ram_mb": round(sampler.peak_rss_mb, 1) if sampler.peak_rss_mb else None,
             "detector": cfg.weights,
             "source_label": cfg.source_label,
         }
         return PipelineResult(cfg.camera_id, cfg.source_label, events, metrics)
-
-    @staticmethod
-    def _save_evidence(frames: list, out_dir: Path, event_id: str) -> EvidenceRef:
-        """Save a real pre/at strip from buffered frames as the evidence clip."""
-        import cv2
-        import numpy as np
-
-        if not frames:
-            return EvidenceRef(
-                evidence_id=f"ev_{event_id}", kind="clip", available=False
-            )
-        pre = frames[max(0, len(frames) - 10)]
-        now = frames[-1]
-        strip = np.hstack([cv2.resize(pre, (320, 180)), cv2.resize(now, (320, 180))])
-        cv2.putText(
-            strip,
-            "FILE DEMO evidence (human review required)",
-            (8, 20),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
-            (245, 196, 81),
-            1,
-            cv2.LINE_AA,
-        )
-        dst = out_dir / f"evidence_{event_id}.png"
-        cv2.imwrite(str(dst), strip)
-        return EvidenceRef(evidence_id=f"ev_{event_id}", kind="clip", available=True)

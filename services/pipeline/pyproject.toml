@@ -11,7 +11,7 @@ dependencies = ["numpy>=1.26"]
 
 [project.optional-dependencies]
 # Real video processing: YOLO detector + OpenCV + resource metrics.
-ml = ["ultralytics>=8.4,<9", "opencv-python>=4.9,<5", "psutil>=5.9"]
+ml = ["ultralytics>=8.4,<9", "opencv-python>=4.9,<5", "psutil>=5.9", "pillow>=10"]
 
 [project.scripts]
 storeguard-pipeline = "storeguard_pipeline.cli:main"

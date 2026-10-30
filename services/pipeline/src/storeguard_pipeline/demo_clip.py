@@ -47,9 +47,7 @@ def make_demo_clip(
 
     person = _person_image()
     pscale = (height * 0.55) / person.shape[0]
-    person = cv2.resize(
-        person, (int(person.shape[1] * pscale), int(person.shape[0] * pscale))
-    )
+    person = cv2.resize(person, (int(person.shape[1] * pscale), int(person.shape[0] * pscale)))
     ph, pw = person.shape[:2]
 
     x0, y0 = int(SHELF_ROI[0] * width), int(SHELF_ROI[1] * height)
@@ -63,9 +61,7 @@ def make_demo_clip(
         # Product marker present until remove_at.
         if i < remove_at:
             cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
-            cv2.rectangle(
-                frame, (cx - 40, cy - 30), (cx + 40, cy + 30), (60, 200, 60), -1
-            )
+            cv2.rectangle(frame, (cx - 40, cy - 30), (cx + 40, cy + 30), (60, 200, 60), -1)
 
         # Person sweeps left -> right, passing the shelf around the removal.
         px = int((width - pw) * (i / max(1, frames - 1)))
@@ -111,9 +107,7 @@ def make_checkout_demo_clip(
 
     person = _person_image()
     pscale = (height * 0.6) / person.shape[0]
-    person = cv2.resize(
-        person, (int(person.shape[1] * pscale), int(person.shape[0] * pscale))
-    )
+    person = cv2.resize(person, (int(person.shape[1] * pscale), int(person.shape[0] * pscale)))
     ph, pw = person.shape[:2]
 
     bx0, by0 = int(BAG_ROI[0] * width), int(BAG_ROI[1] * height)
@@ -127,9 +121,7 @@ def make_checkout_demo_clip(
         # Item placed in the bagging area from place_at onwards (stays there).
         if i >= place_at:
             cx, cy = (bx0 + bx1) // 2, (by0 + by1) // 2
-            cv2.rectangle(
-                frame, (cx - 45, cy - 32), (cx + 45, cy + 32), (60, 200, 60), -1
-            )
+            cv2.rectangle(frame, (cx - 45, cy - 32), (cx + 45, cy + 32), (60, 200, 60), -1)
 
         # Person stands at the terminal (left side), slight sway for track motion.
         px = int(width * 0.05) + (i % 4)

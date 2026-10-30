@@ -35,6 +35,50 @@ def _post_event(api_base: str, event_json: str) -> int:
         return int(resp.status)
 
 
+def _upload_evidence(api_base: str, event_id: str, gif_path: Path) -> int:
+    """Upload an evidence GIF to the API as multipart/form-data."""
+    boundary = "----storeguardEvidenceBoundary"
+    data = gif_path.read_bytes()
+    body = b"".join(
+        [
+            f"--{boundary}\r\n".encode(),
+            (
+                'Content-Disposition: form-data; name="file"; ' f'filename="{gif_path.name}"\r\n'
+            ).encode(),
+            b"Content-Type: image/gif\r\n\r\n",
+            data,
+            f"\r\n--{boundary}--\r\n".encode(),
+        ]
+    )
+    req = urllib.request.Request(
+        f"{api_base.rstrip('/')}/api/v1/events/{event_id}/evidence",
+        data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310 - local demo URL
+        return int(resp.status)
+
+
+def _post_and_upload(api_base: str, out: Path, event) -> None:  # noqa: ANN001
+    """POST an event, then upload its evidence GIF if present."""
+    try:
+        code = _post_event(api_base, event.model_dump_json())
+        print(f"    POST {event.event_id} -> {code}")
+    except Exception as exc:  # noqa: BLE001 - report and continue
+        print(f"    POST {event.event_id} failed: {exc}")
+        return
+    for ref in event.evidence:
+        gif = out / f"{ref.evidence_id}.gif"
+        if not gif.is_file():
+            continue
+        try:
+            code = _upload_evidence(api_base, event.event_id, gif)
+            print(f"    evidence {ref.evidence_id} -> {code}")
+        except Exception as exc:  # noqa: BLE001 - report and continue
+            print(f"    evidence {ref.evidence_id} upload failed: {exc}")
+
+
 def cmd_pipeline_demo(args: argparse.Namespace) -> int:
     from storeguard_pipeline.demo_clip import make_demo_clip
 
@@ -58,17 +102,11 @@ def cmd_pipeline_demo(args: argparse.Namespace) -> int:
     print(f"[pipeline] metrics: {json.dumps(result.metrics)}")
     print(f"[pipeline] events produced: {len(result.events)}")
     for e in result.events:
-        print(
-            f"    {e.event_type.value:30} sev={e.severity.value:11} reasons={e.reason_codes}"
-        )
+        print(f"    {e.event_type.value:30} sev={e.severity.value:11} reasons={e.reason_codes}")
 
     if args.api_base:
         for e in result.events:
-            try:
-                code = _post_event(args.api_base, e.model_dump_json())
-                print(f"[pipeline] POST {e.event_id} -> {code}")
-            except Exception as exc:  # noqa: BLE001 - report and continue
-                print(f"[pipeline] POST {e.event_id} failed: {exc}")
+            _post_and_upload(args.api_base, out, e)
     return 0
 
 
@@ -85,9 +123,9 @@ def _build_feed(feed_mode: str, terminal_id: str, session_id: str):  # noqa: ANN
         return SimulatedPosFeed(terminal_id, session_id, available=False)
     if feed_mode == "delayed":
         # Lag covers the item's bagging window so the scan can't correlate in time.
-        return SimulatedPosFeed(
-            terminal_id, session_id, degraded_window=(0.3, 5.0)
-        ).add_scan("SKU-DEMO", occurred_at_s=0.8, delivery_delay_s=10.0)
+        return SimulatedPosFeed(terminal_id, session_id, degraded_window=(0.3, 5.0)).add_scan(
+            "SKU-DEMO", occurred_at_s=0.8, delivery_delay_s=10.0
+        )
     # healthy: no scan for the placed item -> headline non-scan review event.
     return SimulatedPosFeed(terminal_id, session_id)
 
@@ -121,17 +159,12 @@ def cmd_checkout_pipeline_demo(args: argparse.Namespace) -> int:
 
     print(f"[checkout] source={result.source_label} camera={result.camera_id}")
     print(f"[checkout] metrics: {json.dumps(result.metrics)}")
-    non_scan = sum(
-        1 for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED"
-    )
+    non_scan = sum(1 for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED")
     print(
-        f"[checkout] events produced: {len(result.events)} "
-        f"(ITEM_PLACED_NOT_SCANNED={non_scan})"
+        f"[checkout] events produced: {len(result.events)} " f"(ITEM_PLACED_NOT_SCANNED={non_scan})"
     )
     for e in result.events:
-        print(
-            f"    {e.event_type.value:34} sev={e.severity.value:11} reasons={e.reason_codes}"
-        )
+        print(f"    {e.event_type.value:34} sev={e.severity.value:11} reasons={e.reason_codes}")
 
     if args.feed in ("missing", "delayed") and non_scan:
         print("[checkout] SAFETY VIOLATION: non-scan alert on an unhealthy feed!")
@@ -139,11 +172,7 @@ def cmd_checkout_pipeline_demo(args: argparse.Namespace) -> int:
 
     if args.api_base:
         for e in result.events:
-            try:
-                code = _post_event(args.api_base, e.model_dump_json())
-                print(f"[checkout] POST {e.event_id} -> {code}")
-            except Exception as exc:  # noqa: BLE001 - report and continue
-                print(f"[checkout] POST {e.event_id} failed: {exc}")
+            _post_and_upload(args.api_base, out, e)
     return 0
 
 

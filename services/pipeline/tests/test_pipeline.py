@@ -17,9 +17,7 @@ _HAS_ML = (
     and importlib.util.find_spec("cv2") is not None
 )
 
-pytestmark = pytest.mark.skipif(
-    not _HAS_ML, reason="ml extra (ultralytics/opencv) not installed"
-)
+pytestmark = pytest.mark.skipif(not _HAS_ML, reason="ml extra (ultralytics/opencv) not installed")
 
 SHELF_POLY = [(0.10, 0.20), (0.55, 0.20), (0.55, 0.70), (0.10, 0.70)]
 PICKUP_POLY = [(0.55, 0.20), (0.90, 0.20), (0.90, 0.80), (0.55, 0.80)]
@@ -40,15 +38,14 @@ def test_file_demo_produces_shelf_event(tmp_path: Path) -> None:
     )
     result = PipelineCoordinator().run_camera(cfg, tmp_path / "out")
 
-    removals = [
-        e
-        for e in result.events
-        if e.event_type.value == "SHELF_ITEM_REMOVED_UNRESOLVED"
-    ]
+    removals = [e for e in result.events if e.event_type.value == "SHELF_ITEM_REMOVED_UNRESOLVED"]
     assert len(removals) == 1
     ev = removals[0]
     assert ev.human_review_required is True
     assert ev.evidence and ev.evidence[0].available is True
+    # A real bounded GIF clip is written, keyed by evidence_id (ready to upload).
+    gif = tmp_path / "out" / f"{ev.evidence[0].evidence_id}.gif"
+    assert gif.is_file() and gif.read_bytes()[:6] in (b"GIF87a", b"GIF89a")
     assert result.metrics["frames"] == 24
     assert result.metrics["latency_p50_ms"] > 0
     # Product occupancy comes from the labelled demo detector, not SKU recognition.

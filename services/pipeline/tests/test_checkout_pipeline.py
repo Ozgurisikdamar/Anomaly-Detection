@@ -17,9 +17,7 @@ _HAS_ML = (
     and importlib.util.find_spec("cv2") is not None
 )
 
-pytestmark = pytest.mark.skipif(
-    not _HAS_ML, reason="ml extra (ultralytics/opencv) not installed"
-)
+pytestmark = pytest.mark.skipif(not _HAS_ML, reason="ml extra (ultralytics/opencv) not installed")
 
 BAG_POLY = [(0.50, 0.30), (0.85, 0.30), (0.85, 0.75), (0.50, 0.75)]
 SCAN_POLY = [(0.15, 0.30), (0.45, 0.30), (0.45, 0.65), (0.15, 0.65)]
@@ -51,13 +49,9 @@ def test_healthy_feed_unscanned_item_is_non_scan(tmp_path: Path) -> None:
     from storeguard_pipeline.checkout_coordinator import CheckoutPipelineCoordinator
 
     feed = SimulatedPosFeed("term_01", "sess_demo_01")  # item placed, never scanned
-    result = CheckoutPipelineCoordinator().run(
-        _cfg(_clip(tmp_path)), feed, tmp_path / "out"
-    )
+    result = CheckoutPipelineCoordinator().run(_cfg(_clip(tmp_path)), feed, tmp_path / "out")
 
-    non_scan = [
-        e for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED"
-    ]
+    non_scan = [e for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED"]
     assert len(non_scan) == 1
     ev = non_scan[0]
     assert ev.human_review_required is True
@@ -71,9 +65,7 @@ def test_missing_feed_never_produces_non_scan(tmp_path: Path) -> None:
     from storeguard_pipeline.checkout_coordinator import CheckoutPipelineCoordinator
 
     feed = SimulatedPosFeed("term_01", "sess_demo_01", available=False)
-    result = CheckoutPipelineCoordinator().run(
-        _cfg(_clip(tmp_path)), feed, tmp_path / "out"
-    )
+    result = CheckoutPipelineCoordinator().run(_cfg(_clip(tmp_path)), feed, tmp_path / "out")
     types = [e.event_type.value for e in result.events]
     assert "ITEM_PLACED_NOT_SCANNED" not in types
     assert "TRANSACTION_DATA_MISSING" in types
@@ -84,12 +76,10 @@ def test_delayed_feed_never_produces_non_scan(tmp_path: Path) -> None:
 
     from storeguard_pipeline.checkout_coordinator import CheckoutPipelineCoordinator
 
-    feed = SimulatedPosFeed(
-        "term_01", "sess_demo_01", degraded_window=(0.3, 5.0)
-    ).add_scan("SKU-DEMO", occurred_at_s=0.8, delivery_delay_s=10.0)
-    result = CheckoutPipelineCoordinator().run(
-        _cfg(_clip(tmp_path)), feed, tmp_path / "out"
+    feed = SimulatedPosFeed("term_01", "sess_demo_01", degraded_window=(0.3, 5.0)).add_scan(
+        "SKU-DEMO", occurred_at_s=0.8, delivery_delay_s=10.0
     )
+    result = CheckoutPipelineCoordinator().run(_cfg(_clip(tmp_path)), feed, tmp_path / "out")
     types = [e.event_type.value for e in result.events]
     assert "ITEM_PLACED_NOT_SCANNED" not in types
     assert "TRANSACTION_DATA_MISSING" in types
@@ -105,7 +95,5 @@ def test_mismatched_session_scan_does_not_correlate(tmp_path: Path) -> None:
     result = CheckoutPipelineCoordinator().run(
         _cfg(_clip(tmp_path), session_id="sess_demo_01"), feed, tmp_path / "out"
     )
-    non_scan = [
-        e for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED"
-    ]
+    non_scan = [e for e in result.events if e.event_type.value == "ITEM_PLACED_NOT_SCANNED"]
     assert len(non_scan) == 1  # the mismatched scan did not resolve the item

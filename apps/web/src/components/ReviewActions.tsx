@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { STATUS_TR, trLabel } from "@/lib/tr";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:8000";
 
 type Action = "acknowledge" | "resolve" | "dismiss";
@@ -18,11 +20,11 @@ export function ReviewActions({ eventId, status }: { eventId: string; status: st
     setErr(null);
     setMsg(null);
     if (!reviewer.trim()) {
-      setErr("Reviewer is required.");
+      setErr("İnceleyen gerekli.");
       return;
     }
     if ((action === "resolve" || action === "dismiss") && !reason.trim()) {
-      setErr("A reason is required to resolve or dismiss.");
+      setErr("Doğrulamak veya yanlış alarm işaretlemek için gerekçe zorunlu.");
       return;
     }
     const body: Record<string, unknown> = { reviewer };
@@ -42,9 +44,9 @@ export function ReviewActions({ eventId, status }: { eventId: string; status: st
       if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
       const updated = await res.json();
       setCurrent(updated.status);
-      setMsg(`Saved: status is now ${updated.status} (by ${reviewer}).`);
+      setMsg(`Kaydedildi: durum artık "${trLabel(STATUS_TR, updated.status)}" (${reviewer}).`);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "request failed");
+      setErr(e instanceof Error ? e.message : "istek başarısız");
     } finally {
       setBusy(false);
     }
@@ -53,47 +55,47 @@ export function ReviewActions({ eventId, status }: { eventId: string; status: st
   return (
     <div className="space-y-2">
       <div className="text-sm text-slate-100">
-        Current status: <span className="font-semibold">{current}</span>
+        Mevcut durum: <span className="font-semibold">{trLabel(STATUS_TR, current)}</span>
       </div>
       <input
         value={reviewer}
         onChange={(e) => setReviewer(e.target.value)}
-        placeholder="reviewer"
+        placeholder="inceleyen"
         className="w-full rounded-md border border-edge bg-ink px-2 py-1 text-sm text-slate-100"
       />
       <input
         value={reason}
         onChange={(e) => setReason(e.target.value)}
-        placeholder="reason (required for resolve/dismiss)"
+        placeholder="gerekçe (doğrula/yanlış alarm için zorunlu)"
         className="w-full rounded-md border border-edge bg-ink px-2 py-1 text-sm text-slate-100"
       />
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => act("acknowledge")}
           disabled={busy}
           className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-slate-100 disabled:opacity-50"
         >
-          Acknowledge
+          İncelemeye al
         </button>
         <button
           onClick={() => act("resolve")}
           disabled={busy}
           className="rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
         >
-          Resolve
+          Doğrula
         </button>
         <button
           onClick={() => act("dismiss")}
           disabled={busy}
           className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-slate-100 disabled:opacity-50"
         >
-          Dismiss
+          Yanlış alarm
         </button>
       </div>
       {msg ? <p className="text-xs text-emerald-300">{msg}</p> : null}
       {err ? <p className="text-xs text-rose-300">⚠ {err}</p> : null}
       <p className="text-[11px] text-muted">
-        Actions call the API (reviewer + reason required) and persist server-side.
+        Aksiyonlar API'yi çağırır (inceleyen + gerekçe zorunlu) ve sunucuda kalıcı olur.
       </p>
     </div>
   );

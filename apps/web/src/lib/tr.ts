@@ -156,6 +156,12 @@ export function trLabel(map: Record<string, string>, key: string | null | undefi
   return map[key] ?? key;
 }
 
+/** Olayın kaynak etiketi: görüntü hattı → DOSYA DEMO, diğer → SİMÜLASYON. */
+export function eventSourceLabel(modelVersion?: string | null): string {
+  if (modelVersion && /yolo|DEMO-PRODUCT-DETECTOR/i.test(modelVersion)) return "DOSYA DEMO";
+  return "SİMÜLASYON";
+}
+
 /** ISO tarihten "11 saat önce" biçiminde göreli Türkçe zaman. */
 export function relativeTimeTr(iso: string): string {
   const then = new Date(iso).getTime();

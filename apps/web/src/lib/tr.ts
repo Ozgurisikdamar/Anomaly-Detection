@@ -103,6 +103,26 @@ export const EXPLANATION_TR: Record<string, string> = {
     "İşlem, eksik/çelişkili entegrasyon sinyalleriyle kapandı; sonuç BİLİNMİYOR. Hiçbir ihlal iddia edilmez.",
 };
 
+export const CHECKOUT_STATE_TR: Record<string, string> = {
+  IDLE: "Boşta",
+  SESSION_ACTIVE: "Oturum aktif",
+  ITEM_PRESENTED: "Ürün sunuldu",
+  SCAN_OBSERVED: "Tarama gözlendi",
+  BAGGING_OBSERVED: "Bagaj gözlendi",
+  SCALE_STABLE: "Tartı kararlı",
+  PAYMENT_PENDING: "Ödeme bekliyor",
+  PAID: "Ödendi",
+  SESSION_CLOSED: "Oturum kapandı",
+};
+
+export const TXN_KIND_TR: Record<string, string> = {
+  payment_authorized: "Ödeme onaylandı",
+  payment_declined: "Ödeme reddedildi",
+  completed: "Tamamlandı",
+  void: "İptal",
+  attendant_override: "Görevli onayı",
+};
+
 export const SOURCE_TR: Record<string, string> = {
   live: "canlı (SSE)",
   sample: "örnek · çevrimdışı",

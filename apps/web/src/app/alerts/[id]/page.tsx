@@ -22,7 +22,7 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex justify-between gap-4 py-1 text-sm">
       <span className="text-muted">{label}</span>
-      <span className="text-right text-slate-100">{value}</span>
+      <span className="text-right text-fg">{value}</span>
     </div>
   );
 }
@@ -36,7 +36,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
         <Link href="/alerts" className="text-sm text-accent hover:underline">
           {UI.common.backToAlerts}
         </Link>
-        <p className="text-slate-300">Olay bulunamadı.</p>
+        <p className="text-muted">Olay bulunamadı.</p>
       </div>
     );
   }
@@ -59,19 +59,19 @@ export default async function EventDetailPage({ params }: { params: { id: string
 
       <header className="flex flex-wrap items-center gap-3">
         <SeverityBadge severity={event.severity} />
-        <h1 className="text-2xl font-bold text-white">{trLabel(EVENT_TYPE_TR, event.event_type)}</h1>
+        <h1 className="text-2xl font-bold text-fg">{trLabel(EVENT_TYPE_TR, event.event_type)}</h1>
         <span
           className={`rounded px-2 py-0.5 text-xs ${
             eventSourceLabel(event.model_version) === "DOSYA DEMO"
               ? "bg-accent/20 text-accent"
-              : "bg-amber-500/15 text-amber-200"
+              : "bg-amber-500/15 text-amber-800 dark:text-amber-200"
           }`}
         >
           {eventSourceLabel(event.model_version)}
         </span>
       </header>
 
-      <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm text-amber-100/90">
+      <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-sm text-amber-800 dark:text-amber-100/90">
         {UI.neutralNote} {explanation}
       </div>
 
@@ -90,7 +90,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
           <Panel title="Neden kodları & eksik sinyaller">
             <div className="mb-2 flex flex-wrap gap-2">
               {event.reason_codes.map((r) => (
-                <span key={r} className="rounded bg-edge px-2 py-0.5 text-xs text-slate-200">
+                <span key={r} className="rounded bg-edge px-2 py-0.5 text-xs text-fg">
                   {trLabel(REASON_TR, r)}
                 </span>
               ))}
@@ -100,7 +100,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                 <span className="text-xs text-muted">eksik veri bayrağı yok</span>
               ) : (
                 event.missing_data_flags.map((m) => (
-                  <span key={m} className="rounded bg-slate-500/20 px-2 py-0.5 text-xs text-slate-300">
+                  <span key={m} className="rounded bg-slate-500/20 px-2 py-0.5 text-xs text-muted">
                     ⚠ {trLabel(MISSING_FLAG_TR, m)}
                   </span>
                 ))

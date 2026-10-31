@@ -24,9 +24,9 @@ const VH = 56;
 
 // Kamera kaynağını ayırt edici, dürüst bir rozete eşle.
 const SOURCE_BADGE_CLS: Record<string, string> = {
-  rtsp: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
-  file: "border-amber-500/40 bg-amber-500/10 text-amber-200",
-  synthetic: "border-slate-500/40 bg-slate-500/10 text-slate-300",
+  rtsp: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  file: "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200",
+  synthetic: "border-slate-500/40 bg-slate-500/10 text-muted",
 };
 
 function SourceBadge({ sourceKind }: { sourceKind: string }) {
@@ -88,10 +88,10 @@ export default async function CamerasPage() {
     <div className="space-y-5">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Kameralar</h1>
+          <h1 className="text-2xl font-bold text-fg">Kameralar</h1>
           <p className="text-sm text-muted">
             Bölge poligonları + akış sağlığı / kare yaşı. Değerler SİMÜLASYON'dur; gerçek sağlık
-            motoru <code className="text-slate-300">services/capture</code>.
+            motoru <code className="text-muted">services/capture</code>.
           </p>
         </div>
         <SourcePill source={source} />
@@ -105,7 +105,7 @@ export default async function CamerasPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-white">{c.name}</span>
+                    <span className="font-semibold text-fg">{c.name}</span>
                     <SourceBadge sourceKind={c.source_kind} />
                   </div>
                   <div className="text-xs text-muted">

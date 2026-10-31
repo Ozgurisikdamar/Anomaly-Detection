@@ -28,7 +28,7 @@ export function CorrelationStrip({
         <h3 className="text-sm font-semibold uppercase tracking-wide text-muted">
           Kamera ↔ POS korelasyonu
         </h3>
-        <span className="rounded border border-slate-500/40 bg-slate-500/10 px-1.5 py-0.5 text-[10px] text-slate-300">
+        <span className="rounded border border-slate-500/40 bg-slate-500/10 px-1.5 py-0.5 text-[10px] text-muted">
           SİMÜLASYON
         </span>
       </div>
@@ -37,7 +37,7 @@ export function CorrelationStrip({
         {/* Kamera tarafı */}
         <div className="flex-1 rounded-lg border border-edge bg-ink p-3">
           <div className="text-xs text-muted">KAMERA GÖRÜYOR</div>
-          <div className="mt-1 text-lg font-bold text-white">{cameraItems} ürün</div>
+          <div className="mt-1 text-lg font-bold text-fg">{cameraItems} ürün</div>
           <div className="mt-2 flex flex-wrap gap-1">
             {Array.from({ length: cameraItems }).map((_, i) => (
               <Box key={i} i={i} />
@@ -55,7 +55,7 @@ export function CorrelationStrip({
         {/* POS tarafı */}
         <div className="flex-1 rounded-lg border border-edge bg-ink p-3">
           <div className="text-xs text-muted">POS KAYDI</div>
-          <div className="mt-1 text-lg font-bold text-white">{posScans} tarama</div>
+          <div className="mt-1 text-lg font-bold text-fg">{posScans} tarama</div>
           <div className="mt-2 flex flex-wrap gap-1">
             {Array.from({ length: posScans }).map((_, i) => (
               <Box key={i} i={i} muted />
@@ -67,8 +67,8 @@ export function CorrelationStrip({
       <div
         className={`mt-3 rounded-lg px-3 py-2 text-sm font-medium ${
           matched
-            ? "bg-emerald-500/10 text-emerald-200"
-            : "bg-rose-500/10 text-rose-200"
+            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-200"
+            : "bg-rose-500/10 text-rose-700 dark:text-rose-200"
         }`}
       >
         {matched

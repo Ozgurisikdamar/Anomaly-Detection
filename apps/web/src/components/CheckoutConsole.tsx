@@ -88,9 +88,9 @@ export function CheckoutConsole({ sessions }: { sessions: CheckoutSession[] }) {
                   s.terminal_id === active.terminal_id ? "bg-accent/15" : "hover:bg-ink/60"
                 }`}
               >
-                <td className="px-3 py-2 font-medium text-slate-100">{s.terminal_id}</td>
+                <td className="px-3 py-2 font-medium text-fg">{s.terminal_id}</td>
                 <td className="px-3 py-2 text-muted">{trLabel(CHECKOUT_STATE_TR, s.state)}</td>
-                <td className="px-3 py-2 text-slate-200">{s.scans.length}</td>
+                <td className="px-3 py-2 text-fg">{s.scans.length}</td>
               </tr>
             ))}
           </tbody>
@@ -115,23 +115,23 @@ export function CheckoutConsole({ sessions }: { sessions: CheckoutSession[] }) {
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted">Tarama sayısı</span>
-                <span className="text-slate-100">{active.scans.length}</span>
+                <span className="text-fg">{active.scans.length}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Ürün adedi</span>
-                <span className="text-slate-100">{itemQty}</span>
+                <span className="text-fg">{itemQty}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Tartı olayı</span>
-                <span className="text-slate-100">{active.scale_events.length}</span>
+                <span className="text-fg">{active.scale_events.length}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Durum</span>
-                <span className="text-slate-100">{trLabel(CHECKOUT_STATE_TR, active.state)}</span>
+                <span className="text-fg">{trLabel(CHECKOUT_STATE_TR, active.state)}</span>
               </div>
             </div>
             {active.scans.length === 0 ? (
-              <div className="mt-3 rounded border border-slate-500/30 bg-slate-500/10 px-2 py-1 text-xs text-slate-300">
+              <div className="mt-3 rounded border border-slate-500/30 bg-slate-500/10 px-2 py-1 text-xs text-muted">
                 ⚠ Tarayıcı akışı yok — durum BİLİNMİYOR; taranmamış ürün alarmı üretilmez.
               </div>
             ) : null}
@@ -152,7 +152,7 @@ export function CheckoutConsole({ sessions }: { sessions: CheckoutSession[] }) {
                 <li key={i} className="flex items-center gap-3 text-sm">
                   <span className={`h-2 w-2 shrink-0 rounded-full ${DOT[row.kind]}`} />
                   <span className="w-20 shrink-0 font-mono text-xs text-muted">{row.t}</span>
-                  <span className="text-slate-100">{row.text}</span>
+                  <span className="text-fg">{row.text}</span>
                 </li>
               ))}
             </ol>

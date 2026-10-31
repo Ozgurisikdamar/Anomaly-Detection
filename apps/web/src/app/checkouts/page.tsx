@@ -11,7 +11,7 @@ export default async function CheckoutsPage() {
     <div className="space-y-5">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Self-checkout · Olay Analizi</h1>
+          <h1 className="text-2xl font-bold text-fg">Self-checkout · Olay Analizi</h1>
           <p className="text-sm text-muted">
             Terminal bazlı durum makinesi · SİMÜLASYON POS / tarayıcı / tartı akışları.
           </p>
@@ -23,7 +23,7 @@ export default async function CheckoutsPage() {
         Taranmamış-ürün inceleme olayları; kamera bagaj-alanı gözlemleri ile (SİMÜLASYON) tarayıcı/POS
         akışının terminal, oturum ve eşzamanlı UTC zamanına göre eşleştirilmesiyle üretilir. Eksik{" "}
         <em>veya</em> gecikmiş POS akışı{" "}
-        <span className="text-slate-200">İşlem verisi eksik</span> (BİLİNMİYOR) sonucunu verir — asla
+        <span className="text-fg">İşlem verisi eksik</span> (BİLİNMİYOR) sonucunu verir — asla
         taranmamış-ürün alarmı değil. Tartı uyuşmazlığı, tartı telemetrisi gerektirir.
       </div>
 

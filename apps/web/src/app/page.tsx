@@ -20,7 +20,7 @@ export default async function OverviewPage() {
     <div className="space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Genel Bakış</h1>
+          <h1 className="text-2xl font-bold text-fg">Genel Bakış</h1>
           <p className="text-sm text-muted">
             StoreGuard Demo Market · aşağıdaki değerler DEMO/SİMÜLASYON'dur
           </p>
@@ -47,7 +47,7 @@ export default async function OverviewPage() {
                 <SeverityBadge severity={e.severity} />
                 <Link
                   href={`/alerts/${e.event_id}`}
-                  className="font-medium text-slate-100 hover:underline"
+                  className="font-medium text-fg hover:underline"
                 >
                   {trLabel(EVENT_TYPE_TR, e.event_type)}
                 </Link>
@@ -60,7 +60,7 @@ export default async function OverviewPage() {
       </Panel>
 
       <Panel title="Ürün ilkeleri (demo tarafından uygulanır)">
-        <ul className="list-disc space-y-1 pl-5 text-sm text-slate-300">
+        <ul className="list-disc space-y-1 pl-5 text-sm text-muted">
           <li>Alarmlar gözlemlenebilir operasyonel anomalileri tanımlar — hırsızlık, niyet veya kişi değil.</li>
           <li>Eksik entegrasyon verisi BİLİNMİYOR'dur, asla bir ihlal değildir.</li>
           <li>POS / tarayıcı / tartı sinyalleri, gerçek entegrasyonlar doğrulanana dek SİMÜLASYON'dur.</li>

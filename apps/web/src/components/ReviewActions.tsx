@@ -54,26 +54,26 @@ export function ReviewActions({ eventId, status }: { eventId: string; status: st
 
   return (
     <div className="space-y-2">
-      <div className="text-sm text-slate-100">
+      <div className="text-sm text-fg">
         Mevcut durum: <span className="font-semibold">{trLabel(STATUS_TR, current)}</span>
       </div>
       <input
         value={reviewer}
         onChange={(e) => setReviewer(e.target.value)}
         placeholder="inceleyen"
-        className="w-full rounded-md border border-edge bg-ink px-2 py-1 text-sm text-slate-100"
+        className="w-full rounded-md border border-edge bg-ink px-2 py-1 text-sm text-fg"
       />
       <input
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="gerekçe (doğrula/yanlış alarm için zorunlu)"
-        className="w-full rounded-md border border-edge bg-ink px-2 py-1 text-sm text-slate-100"
+        className="w-full rounded-md border border-edge bg-ink px-2 py-1 text-sm text-fg"
       />
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => act("acknowledge")}
           disabled={busy}
-          className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-slate-100 disabled:opacity-50"
+          className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-fg disabled:opacity-50"
         >
           İncelemeye al
         </button>
@@ -87,13 +87,13 @@ export function ReviewActions({ eventId, status }: { eventId: string; status: st
         <button
           onClick={() => act("dismiss")}
           disabled={busy}
-          className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-slate-100 disabled:opacity-50"
+          className="rounded-lg border border-edge bg-edge px-3 py-1.5 text-xs text-fg disabled:opacity-50"
         >
           Yanlış alarm
         </button>
       </div>
-      {msg ? <p className="text-xs text-emerald-300">{msg}</p> : null}
-      {err ? <p className="text-xs text-rose-300">⚠ {err}</p> : null}
+      {msg ? <p className="text-xs text-emerald-700 dark:text-emerald-300">{msg}</p> : null}
+      {err ? <p className="text-xs text-rose-700 dark:text-rose-300">⚠ {err}</p> : null}
       <p className="text-[11px] text-muted">
         Aksiyonlar API'yi çağırır (inceleyen + gerekçe zorunlu) ve sunucuda kalıcı olur.
       </p>

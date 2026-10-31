@@ -2,10 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tema token'ları. Varsayılan = koyu; [data-theme="light"] aydınlığa çevirir. */
+:root {
+  --ink: #0b1220; /* sayfa zemini */
+  --panel: #111a2e; /* yüzey */
+  --edge: #1e2a44; /* kenar */
+  --muted: #8394b4; /* ikincil metin */
+  --accent: #4f8cff; /* vurgu */
+  --fg: #e6ecf7; /* birincil metin */
+}
+
+:root[data-theme="light"] {
+  --ink: #f4f6fb;
+  --panel: #ffffff;
+  --edge: #d8deea;
+  --muted: #5b6880;
+  --accent: #2f6bff;
+  --fg: #0d1526;
+}
+
 html,
 body {
-  background-color: #0b1220;
-  color: #e6ecf7;
+  background-color: var(--ink);
+  color: var(--fg);
 }
 
 a {

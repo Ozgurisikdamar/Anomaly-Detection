@@ -58,7 +58,7 @@ export function AlertsLive({ initialEvents }: { initialEvents: AnomalyEvent[] })
     <div className="space-y-5">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white">Alarmlar</h1>
+          <h1 className="text-2xl font-bold text-fg">Alarmlar</h1>
           <p className="text-sm text-muted">
             {shown.length} olay · tümü insan incelemesi gerektirir
           </p>
@@ -66,8 +66,8 @@ export function AlertsLive({ initialEvents }: { initialEvents: AnomalyEvent[] })
         <span
           className={`rounded-full border px-2 py-0.5 text-xs ${
             live
-              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-              : "border-slate-500/40 bg-slate-500/10 text-slate-300"
+              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+              : "border-slate-500/40 bg-slate-500/10 text-muted"
           }`}
         >
           {live ? "● canlı (SSE)" : "○ bağlı değil"}
@@ -83,7 +83,7 @@ export function AlertsLive({ initialEvents }: { initialEvents: AnomalyEvent[] })
             className={`rounded-full border px-3 py-1 text-xs ${
               filter === f
                 ? "border-accent bg-accent/15 text-accent"
-                : "border-edge bg-panel text-muted hover:text-slate-200"
+                : "border-edge bg-panel text-muted hover:text-fg"
             }`}
           >
             {f === "ALL" ? "Tümü" : trLabel(STATUS_TR, f)}
@@ -109,16 +109,16 @@ export function AlertsLive({ initialEvents }: { initialEvents: AnomalyEvent[] })
               />
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <SeverityBadge severity={e.severity} />
-                <span className="rounded border border-slate-500/40 bg-slate-500/10 px-1.5 py-0.5 text-[10px] text-slate-300">
+                <span className="rounded border border-slate-500/40 bg-slate-500/10 px-1.5 py-0.5 text-[10px] text-muted">
                   {eventSourceLabel(e.model_version)}
                 </span>
                 {e.missing_data_flags.length > 0 ? (
-                  <span className="rounded bg-slate-500/15 px-1.5 py-0.5 text-[10px] text-slate-300">
+                  <span className="rounded bg-slate-500/15 px-1.5 py-0.5 text-[10px] text-muted">
                     veri eksik
                   </span>
                 ) : null}
               </div>
-              <div className="mt-2 font-semibold text-slate-100 group-hover:text-white">
+              <div className="mt-2 font-semibold text-fg group-hover:text-fg">
                 {trLabel(EVENT_TYPE_TR, e.event_type)}
               </div>
               <div className="mt-1 flex items-center justify-between text-xs text-muted">

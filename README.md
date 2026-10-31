@@ -101,8 +101,12 @@ work package (`docs/REPO_AUDIT_AND_NEXT_WORK.md`) is underway:
   `docs/reports/REPO_AUDIT_P4_REPORT.md`. Throughput only (no labelled retail
   data); real-camera + target-hardware validation are owner tasks.
 
-The P0–P4 post-audit work package is complete. Shelf and checkout events come
-from a FILE DEMO vision pipeline; POS/scanner/scale remain SIMULATED and
+The P0–P4 post-audit work package is complete. The web + mobile UI is now a
+**fully Turkish** professional loss-prevention console (alert grid, 3-column event
+console, self-checkout event analysis with a camera↔POS correlation strip and
+event timeline) using **stylized DEMO** CCTV scenes clearly watermarked
+SİMÜLASYON — see `docs/reports/REPO_AUDIT_P5_UI_REPORT.md`. Shelf and checkout
+events come from a FILE DEMO vision pipeline; POS/scanner/scale remain SIMULATED and
 labelled. Try it: `make demo` (shelf) or `make demo-checkout` (self-checkout);
 benchmark with `make setup-ml && make benchmark`. See `docs/DEPLOYMENT.md` for the
 runbook and the security posture required before any real deployment.

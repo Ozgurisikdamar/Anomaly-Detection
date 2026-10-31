@@ -1,5 +1,6 @@
 /** Small presentational helpers shared across pages. */
 import type { DataSource } from "./api";
+import { SEVERITY_TR, SOURCE_TR, STATE_TR, trLabel } from "./tr";
 
 const severityStyles: Record<string, string> = {
   INFO: "bg-sky-500/15 text-sky-300 border-sky-500/30",
@@ -11,7 +12,7 @@ export function SeverityBadge({ severity }: { severity: string }) {
   const cls = severityStyles[severity] ?? "bg-slate-500/15 text-slate-300 border-slate-500/30";
   return (
     <span className={`inline-block rounded border px-2 py-0.5 text-xs font-medium ${cls}`}>
-      {severity}
+      {trLabel(SEVERITY_TR, severity)}
     </span>
   );
 }
@@ -26,7 +27,7 @@ const stateStyles: Record<string, string> = {
 export function StateDot({ state }: { state: string }) {
   return (
     <span className={`font-medium ${stateStyles[state] ?? "text-slate-300"}`}>
-      ● {state}
+      ● {trLabel(STATE_TR, state)}
     </span>
   );
 }
@@ -41,7 +42,7 @@ export function SourcePill({ source }: { source: DataSource }) {
           : "border-slate-500/40 bg-slate-500/10 text-slate-300"
       }`}
     >
-      {live ? "live API" : "sample / offline"}
+      {live ? trLabel(SOURCE_TR, "live") : trLabel(SOURCE_TR, "sample")}
     </span>
   );
 }

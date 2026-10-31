@@ -1,7 +1,10 @@
 import type { Camera, CameraStreamStatus } from "@storeguard/contracts";
 
 import { loadCameras, loadCameraStatus } from "@/lib/api";
+import { SOURCE_BADGE_TR, trLabel, ZONE_TYPE_TR } from "@/lib/tr";
 import { SourcePill, StateDot } from "@/lib/ui";
+
+const KIND_TR: Record<string, string> = { shelf: "Raf", checkout: "Self-checkout" };
 
 export const dynamic = "force-dynamic";
 
@@ -19,16 +22,20 @@ const ZONE_COLOURS: Record<string, string> = {
 const VW = 100;
 const VH = 56;
 
-// Map the camera source to a distinct, honest label.
-const SOURCE_BADGE: Record<string, { label: string; cls: string }> = {
-  rtsp: { label: "LIVE", cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
-  file: { label: "FILE DEMO", cls: "border-amber-500/40 bg-amber-500/10 text-amber-200" },
-  synthetic: { label: "SIMULATED", cls: "border-slate-500/40 bg-slate-500/10 text-slate-300" },
+// Kamera kaynağını ayırt edici, dürüst bir rozete eşle.
+const SOURCE_BADGE_CLS: Record<string, string> = {
+  rtsp: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+  file: "border-amber-500/40 bg-amber-500/10 text-amber-200",
+  synthetic: "border-slate-500/40 bg-slate-500/10 text-slate-300",
 };
 
 function SourceBadge({ sourceKind }: { sourceKind: string }) {
-  const b = SOURCE_BADGE[sourceKind] ?? SOURCE_BADGE.synthetic;
-  return <span className={`rounded-full border px-2 py-0.5 text-[10px] ${b.cls}`}>{b.label}</span>;
+  const cls = SOURCE_BADGE_CLS[sourceKind] ?? SOURCE_BADGE_CLS.synthetic;
+  return (
+    <span className={`rounded-full border px-2 py-0.5 text-[10px] ${cls}`}>
+      {trLabel(SOURCE_BADGE_TR, sourceKind)}
+    </span>
+  );
 }
 
 function ZoneOverlay({ camera }: { camera: Camera }) {
@@ -40,7 +47,7 @@ function ZoneOverlay({ camera }: { camera: Camera }) {
     >
       {camera.zones.length === 0 ? (
         <text x={VW / 2} y={VH / 2} fill="#8394b4" fontSize="4" textAnchor="middle">
-          no zones configured
+          bölge tanımlı değil
         </text>
       ) : (
         camera.zones.map((z) => {
@@ -52,7 +59,7 @@ function ZoneOverlay({ camera }: { camera: Camera }) {
             <g key={z.zone_id}>
               <polygon points={pts} fill={colour} fillOpacity={0.22} stroke={colour} strokeWidth={0.6} />
               <text x={cx} y={cy} fill={colour} fontSize="3.4" textAnchor="middle">
-                {z.label}
+                {trLabel(ZONE_TYPE_TR, z.zone_type)}
               </text>
             </g>
           );
@@ -65,9 +72,9 @@ function ZoneOverlay({ camera }: { camera: Camera }) {
 function StatusRow({ status }: { status: CameraStreamStatus }) {
   return (
     <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-muted">
-      <span>frame-age: {status.frame_age_ms != null ? `${status.frame_age_ms} ms` : "—"}</span>
+      <span>kare yaşı: {status.frame_age_ms != null ? `${status.frame_age_ms} ms` : "—"}</span>
       <span>FPS: {status.fps ?? "—"}</span>
-      <span>reconnects: {status.reconnect_count}</span>
+      <span>yeniden bağlanma: {status.reconnect_count}</span>
     </div>
   );
 }
@@ -81,10 +88,10 @@ export default async function CamerasPage() {
     <div className="space-y-5">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Cameras</h1>
+          <h1 className="text-2xl font-bold text-white">Kameralar</h1>
           <p className="text-sm text-muted">
-            Zone polygons + stream health / frame-age. Values are SIMULATED; the real health
-            engine is <code className="text-slate-300">services/capture</code>.
+            Bölge poligonları + akış sağlığı / kare yaşı. Değerler SİMÜLASYON'dur; gerçek sağlık
+            motoru <code className="text-slate-300">services/capture</code>.
           </p>
         </div>
         <SourcePill source={source} />
@@ -102,7 +109,7 @@ export default async function CamerasPage() {
                     <SourceBadge sourceKind={c.source_kind} />
                   </div>
                   <div className="text-xs text-muted">
-                    {c.camera_id} · {c.kind} · {c.zones.length} zone(s)
+                    {c.camera_id} · {KIND_TR[c.kind] ?? c.kind} · {c.zones.length} bölge
                   </div>
                 </div>
                 <StateDot state={st?.state ?? "UNKNOWN"} />

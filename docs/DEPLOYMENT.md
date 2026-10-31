@@ -115,6 +115,29 @@ Without steps 1–2 the dashboard still deploys but shows **SIMULATED sample dat
 reach the API. The Expo mobile app and the vision pipeline are deployed separately
 (not Netlify).
 
+### Troubleshooting: "publish directory cannot be the same as the base directory"
+
+If the build fails with **"Your publish directory cannot be the same as the base
+directory of your site"** (log shows `publishOrigin: ui`, `publish = …/apps/web`), a
+stale **UI** build setting is overriding `netlify.toml`. The committed `netlify.toml`
+is correct (`base = apps/web`, `publish = .next` → resolves to `apps/web/.next`), and
+per Netlify's docs the config file overrides the UI — so the fix is to clear the
+conflicting UI value and redeploy:
+
+1. First just retry a clean deploy: **Deploys → Trigger deploy → Clear cache and
+   deploy site**. If the log then shows `Publish directory: …/apps/web/.next`, done.
+2. If it still fails, open **Project configuration → Developer settings → Continuous
+   deployment → Build settings → Configure** and set:
+   - **Base directory** = `apps/web`
+   - **Publish directory** = *empty* (lets `netlify.toml`'s `.next` apply; if the UI
+     forces a value, use the root-relative `apps/web/.next`)
+   - **Package directory** = *empty* (if set to `apps/web` it collides with base)
+   - **Build command** = `npm run build` (or empty — `netlify.toml` provides it)
+3. **Save**, confirm the **production branch is `main`**, then **Clear cache and
+   deploy site** again.
+
+Netlify dashboard: <https://app.netlify.com/> → select the project → the path above.
+
 ## 6. Security & privacy posture (required before real deployment)
 
 This demo must not be pointed at real people until the following are in place.

@@ -20,6 +20,14 @@ import {
   sourceLabel,
 } from "../api";
 import { colors } from "../theme";
+import {
+  EVENT_TYPE_TR,
+  EXPLANATION_TR,
+  REASON_TR,
+  STATUS_TR,
+  trLabel,
+  UI,
+} from "../tr";
 import { Button, SeverityBadge, SimulatedTag, SourceTag } from "../ui";
 
 export function EventDetailScreen({
@@ -47,11 +55,11 @@ export function EventDetailScreen({
 
   async function run(action: "acknowledge" | "resolve" | "dismiss") {
     if (!reviewer.trim()) {
-      setMessage({ ok: false, text: "Reviewer is required." });
+      setMessage({ ok: false, text: UI.detail.reviewerRequired });
       return;
     }
     if (action !== "acknowledge" && !reason.trim()) {
-      setMessage({ ok: false, text: "A reason is required to resolve or dismiss." });
+      setMessage({ ok: false, text: UI.detail.reasonRequired });
       return;
     }
     setBusy(true);
@@ -65,7 +73,7 @@ export function EventDetailScreen({
     setBusy(false);
     if (res.ok) {
       setCurrent(res.event);
-      setMessage({ ok: true, text: `Server status: ${res.event.status}` });
+      setMessage({ ok: true, text: `${UI.detail.serverStatus}: ${trLabel(STATUS_TR, res.event.status)}` });
     } else {
       setMessage({ ok: false, text: res.error });
       void refresh(); // stay server-authoritative even on failure
@@ -78,7 +86,7 @@ export function EventDetailScreen({
   return (
     <ScrollView style={styles.wrap} contentContainerStyle={{ padding: 16 }}>
       <Text style={styles.back} onPress={onBack}>
-        ← Back to inbox
+        {UI.detail.back}
       </Text>
 
       <View style={styles.badges}>
@@ -86,50 +94,56 @@ export function EventDetailScreen({
         <SourceTag label={sourceLabel(current)} />
         {current.simulated ? <SimulatedTag /> : null}
       </View>
-      <Text style={styles.title}>{current.event_type}</Text>
-      <Text style={styles.explain}>{current.explanation}</Text>
+      <Text style={styles.title}>{trLabel(EVENT_TYPE_TR, current.event_type)}</Text>
+      <Text style={styles.explain}>
+        {EXPLANATION_TR[current.event_type] ?? current.explanation}
+      </Text>
 
       <View style={styles.card}>
-        <Row label="Event ID" value={current.event_id} />
-        <Row label="Camera" value={current.camera_id} />
-        <Row label="Zone" value={current.zone_id ?? "—"} />
-        <Row label="Status" value={current.status} />
-        <Row label="Human review" value={current.human_review_required ? "REQUIRED" : "no"} />
-        <Row label="Rule version" value={current.rule_version ?? "—"} />
+        <Row label={UI.detail.eventId} value={current.event_id} />
+        <Row label={UI.detail.camera} value={current.camera_id} />
+        <Row label={UI.detail.zone} value={current.zone_id ?? "—"} />
+        <Row label={UI.detail.status} value={trLabel(STATUS_TR, current.status)} />
+        <Row
+          label={UI.detail.humanReview}
+          value={current.human_review_required ? UI.detail.required : UI.detail.no}
+        />
+        <Row label={UI.detail.ruleVersion} value={current.rule_version ?? "—"} />
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Evidence clip</Text>
+        <Text style={styles.cardTitle}>{UI.detail.evidence}</Text>
         {evidenceUri ? (
           <>
             <Image source={{ uri: evidenceUri }} style={styles.evidence} resizeMode="contain" />
-            <Text style={styles.note}>
-              Authenticated short-lived URL · human review required. Area outside the
-              zone is dimmed.
-            </Text>
+            <Text style={styles.note}>{UI.detail.evidenceNote}</Text>
           </>
         ) : (
-          <Text style={styles.note}>No evidence clip available for this event.</Text>
+          <Text style={styles.note}>{UI.detail.noEvidence}</Text>
         )}
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Reason codes</Text>
-        <Text style={styles.codes}>{current.reason_codes.join(", ") || "—"}</Text>
+        <Text style={styles.cardTitle}>{UI.detail.reasonCodes}</Text>
+        <Text style={styles.codes}>
+          {current.reason_codes.map((r) => trLabel(REASON_TR, r)).join(", ") || "—"}
+        </Text>
         {current.missing_data_flags.length > 0 ? (
           <>
-            <Text style={[styles.cardTitle, { marginTop: 10 }]}>Missing signals</Text>
-            <Text style={styles.warn}>⚠ {current.missing_data_flags.join(", ")}</Text>
+            <Text style={[styles.cardTitle, { marginTop: 10 }]}>{UI.detail.missingSignals}</Text>
+            <Text style={styles.warn}>
+              ⚠ {current.missing_data_flags.map((m) => trLabel(REASON_TR, m)).join(", ")}
+            </Text>
           </>
         ) : null}
       </View>
 
-      <Text style={styles.cardTitle}>Review action (persisted via API)</Text>
+      <Text style={styles.cardTitle}>{UI.detail.reviewTitle}</Text>
       <TextInput
         style={styles.input}
         value={reviewer}
         onChangeText={setReviewer}
-        placeholder="reviewer"
+        placeholder={UI.detail.reviewer}
         placeholderTextColor={colors.muted}
         autoCapitalize="none"
       />
@@ -137,13 +151,13 @@ export function EventDetailScreen({
         style={styles.input}
         value={reason}
         onChangeText={setReason}
-        placeholder="reason (required for resolve / dismiss)"
+        placeholder={UI.detail.reason}
         placeholderTextColor={colors.muted}
       />
       <View style={styles.actions}>
-        <Button label="Acknowledge" onPress={() => void run("acknowledge")} />
-        <Button label="Resolve" tone="accent" onPress={() => void run("resolve")} />
-        <Button label="Dismiss" onPress={() => void run("dismiss")} />
+        <Button label={UI.detail.ack} onPress={() => void run("acknowledge")} />
+        <Button label={UI.detail.resolve} tone="accent" onPress={() => void run("resolve")} />
+        <Button label={UI.detail.dismiss} onPress={() => void run("dismiss")} />
       </View>
       {busy ? <ActivityIndicator color={colors.accent} style={{ marginTop: 10 }} /> : null}
       {message ? (

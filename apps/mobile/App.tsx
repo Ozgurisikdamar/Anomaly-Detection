@@ -9,6 +9,7 @@ import { EventDetailScreen } from "./src/screens/EventDetailScreen";
 import { InboxScreen } from "./src/screens/InboxScreen";
 import { LoginScreen } from "./src/screens/LoginScreen";
 import { colors } from "./src/theme";
+import { UI } from "./src/tr";
 
 type Tab = "inbox" | "cameras";
 
@@ -33,15 +34,15 @@ export default function App() {
       <StatusBar style="light" />
       {/* Non-negotiable: demo data is always visibly labelled. */}
       <View style={styles.banner}>
-        <Text style={styles.bannerText}>SCAFFOLD · SIMULATED data · every alert is human-reviewed</Text>
+        <Text style={styles.bannerText}>{UI.banner}</Text>
       </View>
 
       <View style={{ flex: 1 }}>{body}</View>
 
       {authed && !selected ? (
         <View style={styles.tabbar}>
-          <TabButton label="Inbox" active={tab === "inbox"} onPress={() => setTab("inbox")} />
-          <TabButton label="Cameras" active={tab === "cameras"} onPress={() => setTab("cameras")} />
+          <TabButton label={UI.tabs.inbox} active={tab === "inbox"} onPress={() => setTab("inbox")} />
+          <TabButton label={UI.tabs.cameras} active={tab === "cameras"} onPress={() => setTab("cameras")} />
         </View>
       ) : null}
     </SafeAreaView>

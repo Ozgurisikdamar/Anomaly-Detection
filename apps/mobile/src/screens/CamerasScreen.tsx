@@ -2,24 +2,27 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { SAMPLE_CAMERAS } from "../sample";
 import { colors, stateColor } from "../theme";
+import { STATE_TR, trLabel, UI } from "../tr";
+
+const KIND_TR: Record<string, string> = { shelf: "Raf", checkout: "Self-checkout" };
 
 export function CamerasScreen() {
   return (
     <ScrollView style={styles.wrap} contentContainerStyle={{ padding: 16 }}>
-      <Text style={styles.title}>Camera health</Text>
-      <Text style={styles.sub}>SIMULATED health · real FPS / frame-age arrive in Phase 2</Text>
+      <Text style={styles.title}>{UI.cameras.title}</Text>
+      <Text style={styles.sub}>{UI.cameras.sub}</Text>
 
       {SAMPLE_CAMERAS.map((c) => (
         <View key={c.camera_id} style={styles.row}>
           <View style={{ flex: 1 }}>
             <Text style={styles.name}>{c.name}</Text>
             <Text style={styles.meta}>
-              {c.camera_id} · {c.kind}
+              {c.camera_id} · {KIND_TR[c.kind] ?? c.kind}
             </Text>
           </View>
           <View style={{ alignItems: "flex-end" }}>
             <Text style={[styles.state, { color: stateColor[c.state] ?? colors.muted }]}>
-              ● {c.state}
+              ● {trLabel(STATE_TR, c.state)}
             </Text>
             <Text style={styles.meta}>FPS {c.fps ?? "—"}</Text>
           </View>
@@ -27,10 +30,10 @@ export function CamerasScreen() {
       ))}
 
       <View style={styles.offline}>
-        <Text style={styles.offlineTitle}>Offline / error state</Text>
+        <Text style={styles.offlineTitle}>Çevrimdışı / hata durumu</Text>
         <Text style={styles.offlineText}>
-          When the device loses the API, the app shows the last known SIMULATED data with a
-          clear banner and never fabricates live status.
+          Cihaz API'yi kaybettiğinde uygulama, son bilinen SİMÜLASYON verisini net bir bant ile
+          gösterir ve asla sahte canlı durum üretmez.
         </Text>
       </View>
     </ScrollView>

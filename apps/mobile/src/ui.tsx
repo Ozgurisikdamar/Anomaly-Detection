@@ -1,12 +1,13 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors, severityColor } from "./theme";
+import { SEVERITY_TR, trLabel } from "./tr";
 
 export function SeverityBadge({ severity }: { severity: string }) {
   const c = severityColor[severity] ?? colors.muted;
   return (
     <View style={[styles.badge, { borderColor: c }]}>
-      <Text style={[styles.badgeText, { color: c }]}>{severity}</Text>
+      <Text style={[styles.badgeText, { color: c }]}>{trLabel(SEVERITY_TR, severity)}</Text>
     </View>
   );
 }
@@ -14,13 +15,13 @@ export function SeverityBadge({ severity }: { severity: string }) {
 export function SimulatedTag() {
   return (
     <View style={[styles.badge, { borderColor: colors.amber }]}>
-      <Text style={[styles.badgeText, { color: colors.amber }]}>SIMULATED</Text>
+      <Text style={[styles.badgeText, { color: colors.amber }]}>SİMÜLASYON</Text>
     </View>
   );
 }
 
-export function SourceTag({ label }: { label: "FILE DEMO" | "SIMULATED" }) {
-  const c = label === "FILE DEMO" ? colors.accent : colors.amber;
+export function SourceTag({ label }: { label: string }) {
+  const c = label === "DOSYA DEMO" ? colors.accent : colors.amber;
   return (
     <View style={[styles.badge, { borderColor: c }]}>
       <Text style={[styles.badgeText, { color: c }]}>{label}</Text>

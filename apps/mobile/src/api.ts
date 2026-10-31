@@ -86,9 +86,10 @@ export function dismissEvent(
   return postReview(id, "dismiss", { reviewer, note });
 }
 
-// Honest per-event provenance: shelf/checkout detections come from the FILE DEMO
-// vision pipeline (model_version is set); seeded events are SIMULATED. POS/scale
-// are always simulated.
-export function sourceLabel(event: AnomalyEvent): "FILE DEMO" | "SIMULATED" {
-  return event.model_version ? "FILE DEMO" : "SIMULATED";
+// Olay kaynağı: görüntü hattından gelen tespitler DOSYA DEMO; tohum olaylar
+// SİMÜLASYON. POS/tartı her zaman simüledir.
+export function sourceLabel(event: AnomalyEvent): "DOSYA DEMO" | "SİMÜLASYON" {
+  return event.model_version && /yolo|DEMO-PRODUCT-DETECTOR/i.test(event.model_version)
+    ? "DOSYA DEMO"
+    : "SİMÜLASYON";
 }

@@ -13,6 +13,7 @@ import type { AnomalyEvent } from "@storeguard/contracts";
 
 import { fetchEvents, sourceLabel, type DataSource } from "../api";
 import { colors } from "../theme";
+import { EVENT_TYPE_TR, STATUS_TR, trLabel, UI } from "../tr";
 import { SeverityBadge, SourceTag } from "../ui";
 
 const POLL_MS = 5000;
@@ -60,12 +61,12 @@ export function InboxScreen({ onOpen }: { onOpen: (e: AnomalyEvent) => void }) {
       }
     >
       <View style={styles.header}>
-        <Text style={styles.title}>Alerts inbox</Text>
-        <Text style={styles.source}>
-          {source === "live" ? "● live (polling 5s)" : "○ sample / offline"}
-        </Text>
+        <Text style={styles.title}>{UI.inbox.title}</Text>
+        <Text style={styles.source}>{source === "live" ? UI.inbox.live : UI.inbox.offline}</Text>
       </View>
-      <Text style={styles.sub}>{events.length} events · all require human review</Text>
+      <Text style={styles.sub}>
+        {events.length} {UI.inbox.sub}
+      </Text>
 
       {events.map((e) => (
         <Pressable key={e.event_id} style={styles.row} onPress={() => onOpen(e)}>
@@ -73,12 +74,12 @@ export function InboxScreen({ onOpen }: { onOpen: (e: AnomalyEvent) => void }) {
             <SeverityBadge severity={e.severity} />
             <SourceTag label={sourceLabel(e)} />
             {e.missing_data_flags.length > 0 ? (
-              <Text style={styles.missing}>missing data</Text>
+              <Text style={styles.missing}>{UI.inbox.missing}</Text>
             ) : null}
           </View>
-          <Text style={styles.type}>{e.event_type}</Text>
+          <Text style={styles.type}>{trLabel(EVENT_TYPE_TR, e.event_type)}</Text>
           <Text style={styles.meta}>
-            {e.camera_id} · {e.status}
+            {e.camera_id} · {trLabel(STATUS_TR, e.status)}
           </Text>
         </Pressable>
       ))}

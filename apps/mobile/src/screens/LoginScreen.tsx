@@ -1,26 +1,24 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import { colors } from "../theme";
+import { UI } from "../tr";
 import { Button } from "../ui";
 
 export function LoginScreen({ onEnter }: { onEnter: () => void }) {
   return (
     <View style={styles.wrap}>
       <Text style={styles.logo}>StoreGuard</Text>
-      <Text style={styles.sub}>Loss-prevention review — mobile demo</Text>
+      <Text style={styles.sub}>{UI.login.tagline}</Text>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Mock sign-in (local demo only)</Text>
+        <Text style={styles.label}>{UI.login.mockLabel}</Text>
         <Text style={styles.value}>reviewer@demo.local</Text>
         <View style={{ height: 14 }} />
-        <Button label="Enter demo" tone="accent" onPress={onEnter} />
-        <Text style={styles.note}>
-          No real authentication. A production build uses an authenticated API with
-          short-lived media access and never exposes camera URLs.
-        </Text>
+        <Button label={UI.login.enter} tone="accent" onPress={onEnter} />
+        <Text style={styles.note}>{UI.login.note}</Text>
       </View>
 
-      <Text style={styles.footer}>All data is SIMULATED · Phase 0 scaffold</Text>
+      <Text style={styles.footer}>{UI.login.footer}</Text>
     </View>
   );
 }
